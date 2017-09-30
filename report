@@ -1,0 +1,44 @@
+Here is a summary of bug reports and actions:
+
+Sat 10/9 - assertion violation reported by Garth
+Mon 12/9 - several problems reported personally by students
+
+	All of these problems fixed Mon 12/9
+
+Tuesday 13/9 - Marolijn reported structure field alignment problem.
+
+	This plus some other bugs fixed Wed 14/9. Synonyms and
+	external synonyms implemented at Garth's request
+
+Thursday 15/9 - segmentation violation reported by Garth. This 
+	problem still remains, although it only occurs on casper, 
+	not under DOS (checked with BoundsChecker), SunOS or FreeBSD.
+	Under casper it affects the network (NFS timeouts)! I have been
+	unable to fathom it, and eventually installed the compiler on
+	ariel for Garth's use.
+
+Friday 16/9 - `bug' reported by Annittah was a bug in her code.
+
+Saturday 17/9 - Marolijn complains about problem assigning strings.
+	This is simply due to string types not being implemented
+	yet (this is mentioned in the docs)
+
+Sunday 25/9 - Annittah reports a failed assertion. This was fixed on Tuesday
+	but she was mailed with a workaround on Sunday.
+
+	William reports that the channel table listing command
+	doesn't print anything, but that setting channel delays and
+	reliabilities does work. The table listing was broken when I
+	implemented floating point types, and has since been fixed.
+
+	William and Mark report that quitting from the interpreter
+	before running the simulation results in a core dump. This
+	has been fixed, and did not affect the students.
+
+Monday 26/9 - Nigel reports an error then retracts.
+
+With the exception of further messages from Garth, these are all the
+complaints I have had. Hardly a `ton'. The only person who has had
+real long-term problems to my knowledge has been Garth.
+
+

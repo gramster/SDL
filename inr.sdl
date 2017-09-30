@@ -1,0 +1,437 @@
+SYSTEM Inres_Protocol;
+
+/* Left out medium - Initiator and Responder exchange signals directly. */
+
+/* The following changes were made by Gram to get this spec
+	to compile and run:
+
+	* Changed start field to start_tm; `start' is a reserved word
+	* Changed BLOCK ENV to BLOCK SYSENV; `env' is a reserved word 
+	* Changed state Connect to Connected; `Connect' is a reserved word
+	* Fixed a couple of syntax errors 
+	* Added IDISresp to SIGNALs below
+	* Fixed up ISDU/IDSU confusion
+	* Added declaration for variable Zaehler
+	* Added signalroutes and connections
+	* Made Connection_establishment a state instead of a label,
+		else the OUTPUT	ICONreq immediately afterwards fails
+		the first time as the destination process doesn't exist yet.
+	* Added initialisation of variables P and Counter in initiator
+*/
+
+  NEWTYPE ISDUtype
+          STRUCT start_tm Time ;
+  ENDNEWTYPE ISDUtype
+
+  NEWTYPE IPDUtype
+          LITERALS cr, cc, dr, dt, ak ;
+  ENDNEWTYPE IPDUtype
+
+  NEWTYPE MSDUtype
+          STRUCT id IPDUtype ;
+          Num Natural ;
+          Data ISDUtype ;
+  ENDNEWTYPE MSDUtype
+
+  SIGNAL ICONreq,
+         IDATreq (ISDUtype),
+         ICONconf,
+         ICONind,
+         ICONresp,
+         IDISreq,
+	 IDISresp,
+         IDISind,
+         IDATind (ISDUtype),
+         CR,
+         CC,
+         DT (Natural, ISDUtype),
+         AK (Natural),
+         DR;
+
+  CHANNEL ISAP1ini FROM SYSENV TO Ini_Station
+          WITH ICONreq, IDATreq ;
+  ENDCHANNEL ISAP1ini ;
+
+  CHANNEL ISAP2ini FROM Ini_Station TO SYSENV
+          WITH ICONconf, IDISind ;
+  ENDCHANNEL ISAP2ini ;
+
+  CHANNEL ISAP1rec FROM SYSENV TO Resp_Station
+	WITH ICONresp, IDISresp, IDISreq ;
+  ENDCHANNEL ISAP1rec ;
+
+  CHANNEL ISAP2rec FROM Resp_Station TO SYSENV
+          WITH ICONind, IDATind ;
+  ENDCHANNEL ISAP2rec ;
+
+  CHANNEL MSAP1resp FROM Resp_Station TO Ini_Station
+          WITH DR, CC, AK ;
+  ENDCHANNEL MSAP1resp ;
+
+  CHANNEL MSAP1ini FROM Ini_Station TO Resp_Station
+          WITH CR, DT ;
+  ENDCHANNEL MSAP1ini ;
+
+  BLOCK SYSENV ;
+
+    SIGNALROUTE CommUIo
+	FROM User_Initiator TO ENV
+		WITH ICONreq, IDATreq ;
+    SIGNALROUTE CommUIi
+	FROM ENV TO User_Initiator
+		WITH ICONconf, IDISind;
+    SIGNALROUTE CommURo
+	FROM User_Responder TO ENV
+		WITH ICONresp, IDISresp, IDISreq ;
+    SIGNALROUTE CommURi
+	FROM ENV TO User_Responder
+		WITH ICONind, IDATind;
+
+    CONNECT ISAP1ini AND CommUIo;
+    CONNECT ISAP2ini AND CommUIi;
+    CONNECT ISAP1rec AND CommURo;
+    CONNECT ISAP2rec AND CommURi;
+
+    PROCESS User_Initiator (1,1) ;
+      SIGNALSET ICONconf, IDISind ;
+
+      DCL Pd Duration := 10.0,
+          Pc Duration := 12.0,
+          d  ISDUtype ;
+    
+      TIMER tc, td ;
+
+        START ;
+              NEXTSTATE Connection_Establishment;
+
+        STATE Connection_Establishment;
+	PROVIDED true;
+              OUTPUT ICONreq ;
+              NEXTSTATE Confirmation ;
+        ENDSTATE ;
+
+        STATE Confirmation ;
+          INPUT ICONconf;
+            Data_Phase:
+              TASK d!start_tm := NOW ;
+              OUTPUT IDATreq (d) ;
+              SET (NOW+Pd, td) ;
+              NEXTSTATE Connected ;
+          INPUT IDISind ;
+              SET (NOW+Pc, tc) ;
+              NEXTSTATE Wait ;
+        ENDSTATE Confirmation ;
+
+        STATE Wait ;
+          INPUT tc ;
+              NEXTSTATE Connection_Establishment ;
+        ENDSTATE Wait ;
+
+        STATE Connected ;
+          INPUT IDISind ;
+              RESET (td) ;
+              NEXTSTATE Connection_Establishment ;
+          INPUT td ;
+              JOIN Data_Phase ;
+        ENDSTATE Connected ;
+
+    ENDPROCESS User_Initiator ;
+
+
+    PROCESS User_Responder (1,1) ;
+      SIGNALSET ICONind, IDATind ;
+
+      DCL d  ISDUtype ;
+  
+        START ;
+              NEXTSTATE Connection ;
+
+        STATE Connection ;
+          INPUT ICONind ;
+            conn:
+              DECISION True /*draw (0.5)*/ ;
+                (True):  OUTPUT ICONresp ;
+                         NEXTSTATE Receiving ;
+                ELSE:    OUTPUT IDISreq ;
+                         NEXTSTATE Connection ;
+              ENDDECISION ;
+        ENDSTATE Connection ;
+
+        STATE Receiving ;
+          INPUT ICONind ;
+              JOIN conn ;
+          INPUT IDATind (d) ;
+              DECISION True /*draw (0.5)*/ ;
+                (True):  NEXTSTATE Receiving ;
+                ELSE:    OUTPUT IDISreq ;
+                         NEXTSTATE Connection ;
+              ENDDECISION ;
+        ENDSTATE Receiving ;
+
+    ENDPROCESS User_Responder ;
+
+  ENDBLOCK SYSENV ;
+
+
+  BLOCK Ini_Station ;
+
+    SIGNALROUTE Comm1o
+	FROM Initiator TO ENV
+		WITH ICONconf, IDISind;
+    SIGNALROUTE Comm1i
+	FROM ENV TO Initiator
+		WITH ICONreq, IDATreq;
+    SIGNALROUTE Comm2o
+	FROM Initiator TO ENV
+		WITH CR, DT;
+    SIGNALROUTE Comm2i
+	FROM ENV TO Initiator
+		WITH DR, CC, AK;
+    CONNECT ISAP1ini AND Comm1i;
+    CONNECT ISAP2ini AND Comm1o;
+    CONNECT MSAP1ini AND Comm2o;
+    CONNECT MSAP1resp AND Comm2i;
+
+    PROCESS Initiator REFERENCED /*%FILE init.sdl*/ ;
+
+  ENDBLOCK Ini_Station ;
+
+
+  BLOCK Resp_Station ;
+
+    SIGNALROUTE Comm1o
+	FROM Responder TO ENV
+		WITH ICONind, IDATind;
+    SIGNALROUTE Comm1i
+	FROM ENV TO Responder
+		WITH ICONresp, IDISresp, IDISreq;
+    SIGNALROUTE Comm2o
+	FROM Responder TO ENV
+		WITH DR, CC, AK;
+    SIGNALROUTE Comm2i
+	FROM ENV TO Responder
+		WITH CR, DT;
+    CONNECT ISAP1rec AND Comm1i;
+    CONNECT ISAP2rec AND Comm1o;
+    CONNECT MSAP1resp AND Comm2o;
+    CONNECT MSAP1ini AND Comm2i;
+
+    PROCESS Responder REFERENCED /*%FILE resp.sdl*/ ;
+
+  ENDBLOCK Resp_Station ;
+
+
+ENDSYSTEM Inres_Protocol ;
+
+PROCESS SYSTEM Inres_Protocol/BLOCK Ini_Station Initiator (1,1) ;
+
+  SIGNALSET ICONreq, DR, CC, IDATreq, AK ;
+
+  DCL Counter Integer := 0,
+      Z       Real,
+      Zaehler Integer,
+      d       ISDUtype,
+      Num     Natural,
+      Number  Natural,
+      Loss    Natural,
+      P       Duration := 3.;
+
+  TIMER tc, td ;
+
+    START ;
+        NEXTSTATE Disconnected ;
+
+    STATE Disconnected ;
+
+      SAVE  IDATreq ;
+
+      INPUT ICONreq ;
+          TASK Zaehler := 1;
+	TASK Z := 1.0 ;
+          OUTPUT CR ;
+          SET (NOW+P,tc) ;
+          NEXTSTATE Wait ;
+
+      INPUT DR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : OUTPUT IDISind ;
+                    NEXTSTATE - ;
+          ENDDECISION ;
+
+    ENDSTATE Disconnected ;
+
+
+    STATE Wait ;
+
+      SAVE  IDATreq ;
+
+      INPUT CC ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : RESET (tc) ;
+                    TASK Number := 1 ;
+                    OUTPUT ICONconf ;
+                    NEXTSTATE Connected ;
+          ENDDECISION ;
+
+      INPUT tc ;
+          DECISION Counter < 4 ;
+            (True): OUTPUT CR ;
+                    TASK Counter := Counter + 1,
+                         Z := Z + 1.0 ;
+                    SET (NOW+P,tc) ;
+                    NEXTSTATE - ;
+            ELSE  : OUTPUT IDISind ;
+                    NEXTSTATE Disconnected ;
+          ENDDECISION ;
+
+      INPUT DR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : RESET (tc) ;
+                    OUTPUT IDISind ;
+                    NEXTSTATE Disconnected ;
+          ENDDECISION ;
+
+    ENDSTATE Wait ;
+
+
+    STATE Connected ;
+
+      INPUT IDATreq (d) ;
+          OUTPUT DT (Number,d) ;
+          TASK Counter := 1, Z := 1.0 ;
+          SET (NOW+P,td) ;
+          NEXTSTATE Sending ;
+
+      INPUT DR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : RESET (tc) ;
+                    OUTPUT IDISind ;
+                    NEXTSTATE Disconnected ;
+          ENDDECISION ;
+
+    ENDSTATE Connected ;
+
+
+    STATE Sending ;
+
+      SAVE  IDATreq ;
+
+      INPUT AK (Num) ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : RESET (td) ;
+                    DECISION Num = Number ;
+                      (True): TASK Number := (Number+1) MOD 2 ;
+                              NEXTSTATE Connected ;
+                      ELSE  :
+                              l:
+                              DECISION Counter < 4 ;
+                                (True): OUTPUT DT (Number, d) ;
+                                        TASK Counter := Counter + 1 ;
+                                        TASK Z := Z + 1.0 ;
+                                        SET (NOW+P,td) ;
+                                        NEXTSTATE Sending ;
+                                ELSE  : OUTPUT IDISind ;
+                                        NEXTSTATE Disconnected ;
+                              ENDDECISION ;
+                    ENDDECISION ;
+          ENDDECISION ;
+
+      INPUT td ;
+          JOIN l ;
+
+      INPUT DR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : RESET (td) ;
+                    OUTPUT IDISind ;
+                    NEXTSTATE Disconnected ;
+          ENDDECISION ;
+
+    ENDSTATE Sending ;
+    
+ENDPROCESS;
+
+PROCESS SYSTEM Inres_Protocol/BLOCK Resp_Station Responder (1,1) ;
+
+  SIGNALSET CR, ICONresp, DT, IDISreq ;
+
+  DCL d       ISDUtype,
+      Num     Natural,
+      Number  Natural,
+      Loss    Natural ;
+
+
+    START ;
+          NEXTSTATE Disconnected ;
+
+
+    STATE Disconnected ;
+
+      INPUT CR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : OUTPUT ICONind ;
+                    NEXTSTATE Wait ;
+          ENDDECISION ;
+
+      INPUT IDISreq ;
+          OUTPUT DR ;
+          NEXTSTATE Disconnected ;
+
+    ENDSTATE Disconnected ;
+
+
+    STATE Wait ;
+
+      INPUT CR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : OUTPUT ICONind ;
+                    NEXTSTATE Wait ;
+          ENDDECISION ;
+
+      INPUT ICONresp ;
+          TASK Number := 0 ;
+          OUTPUT CC ;
+          NEXTSTATE Connected ;
+
+      INPUT IDISreq ;
+          OUTPUT DR ;
+          NEXTSTATE Disconnected ;
+
+    ENDSTATE Wait ;
+
+    STATE Connected ;
+
+      INPUT DT (Num, d) ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : DECISION Num = (Number + 1) MOD 2 ;
+                      (True): OUTPUT IDATind (d) ;
+                              OUTPUT AK (Num) ;
+                              TASK Number := (Number + 1) MOD 2 ;
+                              NEXTSTATE - ;
+                      ELSE  : OUTPUT AK (Num) ;
+                              NEXTSTATE - ;
+                    ENDDECISION ;
+          ENDDECISION ;
+
+      INPUT CR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : OUTPUT ICONind ;
+                    NEXTSTATE Wait ;
+          ENDDECISION ;
+
+      INPUT IDISreq ;
+          OUTPUT DR ;
+          NEXTSTATE Disconnected ;
+
+    ENDSTATE Connected ;
+
+ENDPROCESS;

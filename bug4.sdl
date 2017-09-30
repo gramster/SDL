@@ -1,0 +1,335 @@
+system tftp;
+
+	/* Signal definitions */
+
+signal 
+	u_write_req(Integer), u_read_req, 
+	u_write_succ, u_read_succ(Integer),
+	u_write_fail, u_read_fail,
+
+	WRQ, RRQ, ERR,
+	DATA(Integer, Integer),		/* length, sequence */
+	ACK(Integer);
+
+
+	/* Channel definitions */
+
+channel ISAPini
+	from User to HostA
+		with u_write_req, u_read_req;
+	from HostA to User
+		with u_write_succ, u_read_succ,
+		     u_write_fail, u_read_fail;
+endchannel ISAPini;
+
+channel ISAPrec
+	from User to HostB
+		with u_write_succ, u_read_succ,
+		     u_write_fail, u_read_fail;
+	from HostB to User
+		with u_write_req, u_read_req;
+endchannel ISAPrec;
+
+channel Sublayer
+	from HostA to HostB
+		with WRQ, RRQ, DATA, ACK, ERR;
+	from HostB to HostA
+		with WRQ, RRQ, DATA, ACK, ERR;
+endchannel Sublayer;
+
+
+	/* Block definitions */
+
+block User;
+	process User_Initiator referenced;
+	process User_Responder referenced;
+
+	signalroute IComm
+		from User_Initiator to env
+			with u_write_req, u_read_req;
+		from env to User_Initiator
+			with u_write_succ, u_read_succ,
+			     u_write_fail, u_read_fail;
+
+	signalroute RComm
+		from User_Responder to env
+			with u_write_succ, u_read_succ,
+			     u_write_fail, u_read_fail;
+		from env to User_Responder
+			with u_write_req, u_read_req;
+
+	connect ISAPini and IComm;
+	connect ISAPrec and RComm;
+endblock User;
+
+
+block HostA;
+	process Initiator referenced;
+
+	signalroute UComm
+		from Initiator to env
+			with u_write_succ, u_read_succ,
+			     u_write_fail, u_read_fail;
+		from env to Initiator
+			with u_write_req, u_read_req;
+
+	signalroute PComm
+		from Initiator to env
+			with WRQ, RRQ, ACK, DATA, ERR;
+		from env to Initiator
+			with WRQ, RRQ, ACK, DATA, ERR;
+
+	connect ISAPini and UComm;
+	connect Sublayer and PComm;
+endblock HostA;
+
+
+block HostB;
+	process Responder referenced;
+
+	signalroute UComm
+		from Responder to env
+			with u_write_req, u_read_req;
+		from env to Responder 
+			with u_write_succ, u_read_succ,
+			     u_write_fail, u_read_fail;
+
+	signalroute PComm
+		from Responder to env
+			with WRQ, RRQ, ACK, DATA, ERR;
+		from env to Responder 
+			with WRQ, RRQ, ACK, DATA, ERR;
+
+	connect ISAPrec and UComm;
+	connect Sublayer and PComm;
+endblock HostB;
+
+endsystem tftp;
+
+process system tftp/block User User_Initiator(1,1);
+	dcl size Integer := 123;	
+	start;
+		nextstate writer;
+
+	state writer;
+		provided True;
+			output u_write_req(size);
+			nextstate wait;
+		
+	state wait;
+		input u_write_fail;
+			nextstate reader;
+
+		input u_write_succ;
+			nextstate reader;
+
+	state reader;
+		provided True;
+			output u_read_req;
+				nextstate wait2;
+
+	state wait2;
+		input u_read_fail;
+			nextstate writer;
+		input u_read_succ;
+			nextstate writer;
+endprocess;
+
+
+process system tftp/block User User_Responder(1,1);
+	dcl size Integer := 123;
+
+	start;
+		nextstate idle;
+
+
+	state idle;
+		input u_write_req(size);
+			output u_write_succ;
+			nextstate -;
+
+		input u_read_req;
+			output u_read_succ(size);
+			nextstate -;
+endprocess;
+
+
+process system tftp/block HostA Initiator(1,1);
+	dcl sn Integer;
+	dcl rn Integer;
+	dcl seq Integer;
+	dcl length Integer;			/* block length */
+	dcl size Integer;			/* size of file sent so far */
+	dcl filesize Integer;			/* actual length of file */
+
+	start;
+		nextstate idle;
+
+	state idle;
+		input u_write_req(filesize);
+			output WRQ via PComm;	
+			task size := 0;
+			task sn := 0;
+			task rn := 0;
+			nextstate wait_ack;
+
+		input u_read_req;
+			output RRQ via PComm;
+			task size := 0;
+			task sn := 0;
+			task rn := 0;
+			nextstate wait_data;
+		
+		input ERR;
+			nextstate idle;
+
+	state wait_ack;
+		input ACK(seq);
+			decision seq = rn;
+			(false) : /* do nothing */
+			(true)  : /* send the next packet */
+				task rn := rn + 1;
+				task sn := sn + 1;
+				task length := filesize - size;
+				decision length > 512;
+					(false) :
+					(true)  : task length := 512;
+				enddecision;
+
+				decision length = 0;	/* finished? */
+					(false) :
+					(true)  :
+						output u_write_succ via UComm;
+						nextstate idle;
+				enddecision;	
+
+				output DATA(length,sn) via PComm;
+				task size := size + length;
+			enddecision;
+			nextstate wait_ack ;
+
+		input ERR;
+			output u_write_fail via UComm;
+			nextstate idle;
+
+	state wait_data;
+		input DATA(length,seq);
+			task rn := rn + 1;
+			task sn := sn + 1;
+			decision seq = rn;
+				(false) : nextstate wait_data;
+				(true)  : output ACK(sn) via PComm;
+			enddecision;
+			task size := size + length;
+			decision length = 512;	/* last packet? */
+				(false) : 
+					output u_read_succ(size) via UComm;
+					nextstate idle;
+				(true)  : nextstate wait_data;
+			enddecision;
+
+		input ERR;
+			output u_read_fail via UComm;
+			nextstate idle;
+
+endprocess;
+
+
+process system tftp/block HostB Responder(1,1);
+	dcl sn Integer;
+	dcl rn Integer;
+	dcl seq Integer;
+	dcl length Integer;			/* block length */
+	dcl size Integer;			/* size of file sent so far */
+	dcl filesize Integer;			/* actual length of file */
+
+	start;
+		nextstate idle;
+
+	state idle;
+	input WRQ; 
+			task size := 0;
+			output u_write_req(size) via UComm;
+			nextstate check_write;
+
+		input RRQ;
+			output u_read_req via UComm;
+			nextstate check_read;
+
+	state check_write;
+		input u_write_succ;
+			task sn := 0;
+			task rn := 0;
+			output ACK(sn) via PComm;
+			nextstate wait_data;
+
+		input u_write_fail;
+			output ERR via PComm;
+			nextstate idle;
+
+		input ERR;
+			nextstate idle;
+
+	state check_read;
+		input u_read_succ(filesize);
+			task length := filesize;
+			decision length > 512;
+				(false) :
+				(true)  : task length := 512;
+			enddecision;
+			task sn := 1;
+			task rn := 1;
+			task size := length;
+			output DATA(length, sn) via PComm;
+			nextstate wait_ack;
+
+		input u_read_fail;
+			output ERR via PComm;
+			nextstate idle;
+
+		input ERR;
+			nextstate idle;
+
+	state wait_ack;
+		input ACK(seq);
+			decision seq = rn;
+			(false) : /* do nothing */
+			(true)  : /* send the next packet */
+				task rn := rn + 1;
+				task sn := sn + 1;
+				task length := filesize - size;
+				decision length > 512;
+					(false) :
+					(true)  : task length := 512;
+				enddecision;
+				output DATA(length,sn) via PComm;
+				task size := size + length;
+			enddecision;
+			nextstate wait_ack;
+
+		input ERR;
+			nextstate idle;
+
+	state wait_data;
+		input DATA(length,seq);
+			task rn := rn + 1;
+			task sn := sn + 1;
+			decision seq = rn;
+				(false) : nextstate wait_data;
+				(true)  : output ACK(sn) via PComm;
+			enddecision;
+			decision length = 512;
+				(false) : nextstate idle;
+				(true)  : nextstate wait_data;
+			enddecision;
+
+		input ERR;
+			nextstate idle;
+
+endprocess;
+
+
+
+
+
+

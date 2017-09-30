@@ -1,0 +1,47 @@
+
+system test;
+	block testblk;
+		process testprocess1 referenced;
+		process testprocess2 referenced;
+		process testprocess3 referenced;
+	endblock;
+endsystem;
+
+process system test/block testblk testprocess3(0,);
+	start;
+		write 1;
+		write self;
+		nextstate stateA;
+	state stateA;
+		provided true;
+			write -1;
+			stop;	     	
+endprocess;
+
+process system test/block testblk testprocess2(0,1);
+	start;
+		Write 0;
+		write self;
+		create testprocess3;
+		nextstate stateB;
+	state stateB;
+		provided true;
+			Write 0;
+			stop;
+endprocess;
+
+process system test/block testblk testprocess1(1,1);
+	start;
+		nextstate idle;
+	state idle;
+		provided true;
+			create testprocess2;
+			create testprocess2; /* should fail */
+			write 2;
+			write self;
+			nextstate done;
+	state done;
+		provided true;
+			write -2;
+			stop;
+endprocess;

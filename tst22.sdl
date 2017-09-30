@@ -1,0 +1,30 @@
+/* should produce 256, 256, 256, 0, 0 */
+
+system test;
+	block testblk;
+		process testprocess referenced;
+	endblock;
+endsystem;
+
+process system test/block testblk testprocess(1,1);
+	dcl y integer := 256, z pid;
+	procedure testprocedure;
+		procedure testprocedure2;
+		start;
+			write y;
+			return;
+		endprocedure;
+
+		start;
+			write y;
+			call testprocedure2;
+			task y := 0;
+			write y;
+			return;
+	endprocedure;
+	start;
+		write y;
+		call testprocedure;
+		write y;
+		stop;
+endprocess;

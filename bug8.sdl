@@ -1,0 +1,72 @@
+/*Hi Graham
+
+Unfortunately I am still having problems.
+
+Here is a small test program.  Should it work?
+
+I'll send you my main one as well, though I haven't looked at it as closely
+as the test one, since the test one doesn't work.
+
+*/
+
+
+SYSTEM tst;
+
+
+SIGNAL i_pkt_send_req,r_pkt_send_req;
+
+BLOCK Initiator;
+  process User referenced;
+  process Send_file referenced;
+  signalroute Comm1
+    from User to Send_file with i_pkt_send_req;
+    from Send_file to User with r_pkt_send_req;
+ENDBLOCK Initiator;
+
+
+ENDSYSTEM tst;
+
+/*   THE INITIATOR'S PROCESSES */
+/*  ------------------------------- */
+
+PROCESS system tftp/block Initiator User(1,1);
+   dcl total_len Integer := 2000;
+   dcl procid PId;
+   dcl first,second Pid;
+
+   start;
+	nextstate start2;
+   state start2;
+	provided true;
+	CREATE Send_file(total_len);
+	task first := OFFSPRING;
+	CREATE Send_file(total_len);
+	task second := OFFSPRING;
+	nextstate rrq;
+   state rrq;
+	input r_pkt_send_req;
+	  output i_pkt_send_req to first;
+	  nextstate -;
+ENDPROCESS;
+
+
+PROCESS system tftp/block Initiator Send_file(0,8);
+FPAR total_len Integer;  /* the length of the file to send */ 
+   dcl full_pkt Integer := 512;
+   dcl zero Integer:= 0;  /* synonyms not supported in compiler,
+			      and 0 giving problems */
+   start;
+	/* initialise opcodes */
+	nextstate start2;
+
+  state start2;
+	provided true;
+	output r_pkt_send_req;
+	nextstate wait;
+
+   state wait;
+	input i_pkt_send_req;
+	  output r_pkt_send_req;
+	  nextstate -;
+ENDPROCESS;
+

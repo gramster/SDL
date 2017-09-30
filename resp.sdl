@@ -1,0 +1,100 @@
+From aztec!cs.uct.ac.za!heinz Wed Jul 20 20:47:06 1994
+Return-Path: <aztec!cs.uct.ac.za!heinz>
+Received: by gramix.aztec.co.za (/\==/\ Smail3.1.25.1 #25.30)
+	id <m0qQiXi-000GLLC@gramix.aztec.co.za>; Wed, 20 Jul 94 20:47 GMT
+Received: from cs.uct.ac.za by aztec.co.za with smtp
+	(Smail3.1.28.1 #1) id m0qQZrS-000KdhC; Wed, 20 Jul 94 13:30 EET
+Received: from ariel.cs.uct.ac.za by cs.uct.ac.za with smtp
+	(Smail3.1.28.1 #2) id m0qQZs5-0009EDC; Wed, 20 Jul 94 13:31 SAT (+0200)
+Message-Id: <m0qQZs5-0009EDC@cs.uct.ac.za>
+From: heinz@cs.uct.ac.za (Heinz Kabutz)
+Subject: resp.sdl
+To: gram@cs.uct.ac.za (Graham Wheeler)
+Date: Wed, 20 Jul 1994 13:31:22 +0200 (SAT)
+X-Mailer: ELM [version 2.4 PL23]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Length: 1773      
+Status: O
+
+PROCESS Responder (1,1) ;
+
+  SIGNALSET CR, ICONresp, DT, IDISreq ;
+
+  DCL d       ISDUtype,
+      Num     Natural,
+      Number  Natural,
+      Loss    Natural ;
+
+
+    START ;
+          NEXTSTATE Disconnected ;
+
+
+    STATE Disconnected ;
+
+      INPUT CR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : OUTPUT ICONind ;
+                    NEXTSTATE Wait ;
+          ENDDECISION ;
+
+      INPUT IDISreq ;
+          OUTPUT DR ;
+          NEXTSTATE Disconnected ;
+
+    ENDSTATE Disconnected ;
+
+
+    STATE Wait ;
+
+      INPUT CR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : OUTPUT ICONind ;
+                    NEXTSTATE Wait ;
+          ENDDECISION ;
+
+      INPUT ICONresp ;
+          TASK Number := 0 ;
+          OUTPUT CC ;
+          NEXTSTATE Connected ;
+
+      INPUT IDISreq ;
+          OUTPUT DR ;
+          NEXTSTATE Disconnected ;
+
+    ENDSTATE Wait ;
+
+    STATE Connected ;
+
+      INPUT DT (Num, d) ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : DECISION Num = (Number + 1) MOD 2 ;
+                      (True): OUTPUT IDATind (d) ;
+                              OUTPUT AK (Num) ;
+                              TASK Number := (Number + 1) MOD 2 ;
+                              NEXTSTATE - ;
+                      ELSE  : OUTPUT AK (Num) ;
+                              NEXTSTATE - ;
+                    ENDDECISION ;
+          ENDDECISION ;
+
+      INPUT CR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : OUTPUT ICONind ;
+                    NEXTSTATE Wait ;
+          ENDDECISION ;
+
+      INPUT IDISreq ;
+          OUTPUT DR ;
+          NEXTSTATE Disconnected ;
+
+    ENDSTATE Connected ;
+
+ENDPROCESS Responder ;
+

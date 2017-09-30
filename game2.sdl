@@ -1,0 +1,12 @@
+SYSTEM daemon_game;
+
+BLOCK Blockgame REFERENCED;
+
+CHANNEL C4 FROM blockdaemon TO blockgame
+	WITH Bump;
+ENDCHANNEL C4;
+
+BLOCK blockdaemon REFERENCED;
+
+ENDSYSTEM daemon_game;
+

@@ -1,0 +1,47 @@
+/* test of procedures and procedure parameters. Should produce:
+
+*/
+
+system test;
+	newtype Packet 	/* Dummy data packet definition */
+		array (2) of integer;
+	endnewtype
+
+	block testblk;
+		process testprocess referenced;
+	endblock;
+endsystem;
+
+process system test/block testblk testprocess(1,1);
+	dcl pkt1, pkt2 packet;
+	procedure testprocedure;
+	fpar in/out par1 packet, in par2 packet;
+		procedure testprocedure2;
+		fpar in/out par1 packet, in par2 packet;
+		start;
+			Write par1(0); Write par1(1); Write par2(0); Write par2(1);
+			task par1(0) := 210;
+			task par1(1) := 211;
+			task par2(0) := 220;
+			task par2(1) := 221;
+			return;
+		endprocedure;
+
+		start;
+			call testprocedure2(par1, par2);
+			Write par1(0); Write par1(1); Write par2(0); Write par2(1);
+			task par1(0) := 310;
+			task par1(1) := 311;
+			task par2(0) := 320;
+			task par2(1) := 321;
+			return;
+	endprocedure;
+	start;
+		task pkt1(0) := 110;
+		task pkt1(1) := 111;
+		task pkt2(0) := 120;
+		task pkt2(1) := 121;
+		call testprocedure(pkt1, pkt2);
+		Write pkt1(0); Write pkt1(1); Write pkt2(0); Write pkt2(1);
+		stop;
+endprocess;

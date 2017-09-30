@@ -1,0 +1,844 @@
+In file included from sdlast.h:1782,
+                 from sdlc1.cc:15:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+In file included from sdlast.h:1782,
+                 from sdlparse.cc:25:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlparse.cc: In function `void SynonymDefinition(lh_list_t<data_def_t> *, set_t)':
+sdlparse.cc:1030: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlparse.cc: In function `class heap_ptr_t ViewOrImportExpr(set_t)':
+sdlparse.cc:1171: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlparse.cc: In function `class heap_ptr_t Primary(set_t, primexp_type_t *)':
+sdlparse.cc:1201: jump to case label
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1210: jump to case label
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1219: jump to case label
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1225: jump to case label
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1232: jump to case label
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1239: jump to case label
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1256: jump to case label
+sdlparse.cc:1241:   crosses initialization of `class cond_expr_t * ce'
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1260: jump to case label
+sdlparse.cc:1241:   crosses initialization of `class cond_expr_t * ce'
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1264: jump to case label
+sdlparse.cc:1241:   crosses initialization of `class cond_expr_t * ce'
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1268: jump to case label
+sdlparse.cc:1241:   crosses initialization of `class cond_expr_t * ce'
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1272: jump to case label
+sdlparse.cc:1241:   crosses initialization of `class cond_expr_t * ce'
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1276: jump to case label
+sdlparse.cc:1241:   crosses initialization of `class cond_expr_t * ce'
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1292: jump to case label
+sdlparse.cc:1278:   crosses initialization of `class timer_active_expr_t * tae'
+sdlparse.cc:1241:   crosses initialization of `class cond_expr_t * ce'
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1296: jump to case label
+sdlparse.cc:1278:   crosses initialization of `class timer_active_expr_t * tae'
+sdlparse.cc:1241:   crosses initialization of `class cond_expr_t * ce'
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc:1308: jump to case label
+sdlparse.cc:1278:   crosses initialization of `class timer_active_expr_t * tae'
+sdlparse.cc:1241:   crosses initialization of `class cond_expr_t * ce'
+sdlparse.cc:1196:   crosses initialization of `class real_literal_t * r'
+sdlparse.cc: In function `class heap_ptr_t Operand4(set_t)':
+sdlparse.cc:1400: jump to case label
+sdlparse.cc:1392:   crosses initialization of `class expression_t * e'
+sdlparse.cc: In function `class heap_ptr_t Operand3(set_t)':
+sdlparse.cc:1422: jump to case label
+sdlparse.cc:1414:   crosses initialization of `class expression_t * e'
+sdlparse.cc: In function `class heap_ptr_t Operand2(set_t)':
+sdlparse.cc:1448: jump to case label
+sdlparse.cc:1440:   crosses initialization of `class expression_t * e'
+sdlparse.cc: In function `void Transition(transition_t *, set_t)':
+sdlparse.cc:2221: jump to case label
+sdlparse.cc:2216:   crosses initialization of `class lh_list_t<assignment_t> * al'
+sdlparse.cc:2235: jump to case label
+sdlparse.cc:2222:   crosses initialization of `class output_t * o'
+sdlparse.cc:2216:   crosses initialization of `class lh_list_t<assignment_t> * al'
+sdlparse.cc:2242: jump to case label
+sdlparse.cc:2236:   crosses initialization of `class invoke_node_t * ci'
+sdlparse.cc:2222:   crosses initialization of `class output_t * o'
+sdlparse.cc:2216:   crosses initialization of `class lh_list_t<assignment_t> * al'
+sdlparse.cc:2254: jump to case label
+sdlparse.cc:2243:   crosses initialization of `class decision_node_t * dc'
+sdlparse.cc:2236:   crosses initialization of `class invoke_node_t * ci'
+sdlparse.cc:2222:   crosses initialization of `class output_t * o'
+sdlparse.cc:2216:   crosses initialization of `class lh_list_t<assignment_t> * al'
+sdlparse.cc:2259: jump to case label
+sdlparse.cc:2255:   crosses initialization of `class lh_list_t<timer_set_t> * sl'
+sdlparse.cc:2243:   crosses initialization of `class decision_node_t * dc'
+sdlparse.cc:2236:   crosses initialization of `class invoke_node_t * ci'
+sdlparse.cc:2222:   crosses initialization of `class output_t * o'
+sdlparse.cc:2216:   crosses initialization of `class lh_list_t<assignment_t> * al'
+sdlparse.cc:2264: jump to case label
+sdlparse.cc:2260:   crosses initialization of `class lh_list_t<timer_reset_t> * rl'
+sdlparse.cc:2255:   crosses initialization of `class lh_list_t<timer_set_t> * sl'
+sdlparse.cc:2243:   crosses initialization of `class decision_node_t * dc'
+sdlparse.cc:2236:   crosses initialization of `class invoke_node_t * ci'
+sdlparse.cc:2222:   crosses initialization of `class output_t * o'
+sdlparse.cc:2216:   crosses initialization of `class lh_list_t<assignment_t> * al'
+sdlparse.cc:2269: jump to case label
+sdlparse.cc:2265:   crosses initialization of `class lh_list_t<ident_t> * il'
+sdlparse.cc:2260:   crosses initialization of `class lh_list_t<timer_reset_t> * rl'
+sdlparse.cc:2255:   crosses initialization of `class lh_list_t<timer_set_t> * sl'
+sdlparse.cc:2243:   crosses initialization of `class decision_node_t * dc'
+sdlparse.cc:2236:   crosses initialization of `class invoke_node_t * ci'
+sdlparse.cc:2222:   crosses initialization of `class output_t * o'
+sdlparse.cc:2216:   crosses initialization of `class lh_list_t<assignment_t> * al'
+sdlparse.cc:2277: jump to case label
+sdlparse.cc:2270:   crosses initialization of `class invoke_node_t * pc'
+sdlparse.cc:2265:   crosses initialization of `class lh_list_t<ident_t> * il'
+sdlparse.cc:2260:   crosses initialization of `class lh_list_t<timer_reset_t> * rl'
+sdlparse.cc:2255:   crosses initialization of `class lh_list_t<timer_set_t> * sl'
+sdlparse.cc:2243:   crosses initialization of `class decision_node_t * dc'
+sdlparse.cc:2236:   crosses initialization of `class invoke_node_t * ci'
+sdlparse.cc:2222:   crosses initialization of `class output_t * o'
+sdlparse.cc:2216:   crosses initialization of `class lh_list_t<assignment_t> * al'
+sdlparse.cc:2283: jump to case label
+sdlparse.cc:2278:   crosses initialization of `class read_node_t * rd'
+sdlparse.cc:2270:   crosses initialization of `class invoke_node_t * pc'
+sdlparse.cc:2265:   crosses initialization of `class lh_list_t<ident_t> * il'
+sdlparse.cc:2260:   crosses initialization of `class lh_list_t<timer_reset_t> * rl'
+sdlparse.cc:2255:   crosses initialization of `class lh_list_t<timer_set_t> * sl'
+sdlparse.cc:2243:   crosses initialization of `class decision_node_t * dc'
+sdlparse.cc:2236:   crosses initialization of `class invoke_node_t * ci'
+sdlparse.cc:2222:   crosses initialization of `class output_t * o'
+sdlparse.cc:2216:   crosses initialization of `class lh_list_t<assignment_t> * al'
+sdlparse.cc: In function `enum Bool_t ProcedureDefinition(procedure_def_t *, set_t)':
+sdlparse.cc:2638: jump to case label
+sdlparse.cc:2633:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2632:   crosses initialization of `class lh_list_t<procedure_def_t> * pl'
+sdlparse.cc:2639: jump to case label
+sdlparse.cc:2633:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2632:   crosses initialization of `class lh_list_t<procedure_def_t> * pl'
+sdlparse.cc:2640: jump to case label
+sdlparse.cc:2633:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2632:   crosses initialization of `class lh_list_t<procedure_def_t> * pl'
+sdlparse.cc:2641: jump to case label
+sdlparse.cc:2633:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2632:   crosses initialization of `class lh_list_t<procedure_def_t> * pl'
+sdlparse.cc:2644: jump to case label
+sdlparse.cc:2633:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2632:   crosses initialization of `class lh_list_t<procedure_def_t> * pl'
+sdlparse.cc:2647: jump to case label
+sdlparse.cc:2633:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2632:   crosses initialization of `class lh_list_t<procedure_def_t> * pl'
+sdlparse.cc:2649: jump to case label
+sdlparse.cc:2633:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2632:   crosses initialization of `class lh_list_t<procedure_def_t> * pl'
+sdlparse.cc:2655: jump to case label
+sdlparse.cc:2633:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2632:   crosses initialization of `class lh_list_t<procedure_def_t> * pl'
+sdlparse.cc:2658: jump to case label
+sdlparse.cc:2633:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2632:   crosses initialization of `class lh_list_t<procedure_def_t> * pl'
+sdlparse.cc:2659: jump to case label
+sdlparse.cc:2633:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2632:   crosses initialization of `class lh_list_t<procedure_def_t> * pl'
+sdlparse.cc: In function `enum Bool_t ProcessDefinition(process_def_t *, set_t)':
+sdlparse.cc:2877: jump to case label
+sdlparse.cc:2872:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2878: jump to case label
+sdlparse.cc:2872:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2879: jump to case label
+sdlparse.cc:2872:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2880: jump to case label
+sdlparse.cc:2872:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2883: jump to case label
+sdlparse.cc:2872:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2885: jump to case label
+sdlparse.cc:2872:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2891: jump to case label
+sdlparse.cc:2872:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2894: jump to case label
+sdlparse.cc:2872:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc:2895: jump to case label
+sdlparse.cc:2872:   crosses initialization of `class lh_list_node_t<procedure_def_t> * p'
+sdlparse.cc: In function `void BlockSubstructureBody(subblock_def_t *, set_t)':
+sdlparse.cc:2945: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2948: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2951: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2954: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2957: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2958: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2959: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2960: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2963: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2965: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2971: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc:2974: jump to case label
+sdlparse.cc:2940:   crosses initialization of `class lh_list_node_t<block_def_t> * blk'
+sdlparse.cc: In function `void BlockDefinitionBody(block_def_t *, set_t)':
+sdlparse.cc:3095: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3098: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3101: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3104: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3107: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3108: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3109: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3110: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3113: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3115: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3121: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc:3124: jump to case label
+sdlparse.cc:3090:   crosses initialization of `class lh_list_node_t<process_def_t> * p'
+sdlparse.cc: In function `void SystemDefinition(system_def_t *, set_t)':
+sdlparse.cc:3282: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+sdlparse.cc:3285: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+sdlparse.cc:3288: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+sdlparse.cc:3291: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+sdlparse.cc:3292: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+sdlparse.cc:3293: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+sdlparse.cc:3294: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+sdlparse.cc:3297: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+sdlparse.cc:3300: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+sdlparse.cc:3302: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+sdlparse.cc:3308: jump to case label
+sdlparse.cc:3277:   crosses initialization of `class lh_list_node_t<block_def_t> * b'
+In file included from sdlast.h:1782,
+                 from sdlast.cc:17:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlast.cc: In method `signal_tbl_t::signal_tbl_t()':
+sdlast.cc:514: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlast.cc: In method `s_code_word_t scope_stack_t::findLabel(name_t &)':
+sdlast.cc:1377: jump to case label
+sdlast.cc:1373:   crosses initialization of `class process_def_t * ps'
+sdlast.cc: In method `s_code_word_t scope_stack_t::findState(name_t &)':
+sdlast.cc:1400: jump to case label
+sdlast.cc:1398:   crosses initialization of `class process_def_t * ps'
+sdlast.cc: In method `unop_t::~unop_t()':
+sdlast.cc:1487: jump to case label
+sdlast.cc:1483:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1492: jump to case label
+sdlast.cc:1488:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1483:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1497: jump to case label
+sdlast.cc:1493:   crosses initialization of `class expression_t * e'
+sdlast.cc:1488:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1483:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1502: jump to case label
+sdlast.cc:1498:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1493:   crosses initialization of `class expression_t * e'
+sdlast.cc:1488:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1483:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1507: jump to case label
+sdlast.cc:1503:   crosses initialization of `class timer_active_expr_t * ta'
+sdlast.cc:1498:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1493:   crosses initialization of `class expression_t * e'
+sdlast.cc:1488:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1483:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1508: jump to case label
+sdlast.cc:1503:   crosses initialization of `class timer_active_expr_t * ta'
+sdlast.cc:1498:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1493:   crosses initialization of `class expression_t * e'
+sdlast.cc:1488:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1483:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1513: jump to case label
+sdlast.cc:1509:   crosses initialization of `class view_expr_t * ie'
+sdlast.cc:1503:   crosses initialization of `class timer_active_expr_t * ta'
+sdlast.cc:1498:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1493:   crosses initialization of `class expression_t * e'
+sdlast.cc:1488:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1483:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1518: jump to case label
+sdlast.cc:1514:   crosses initialization of `class var_ref_t * vr'
+sdlast.cc:1509:   crosses initialization of `class view_expr_t * ie'
+sdlast.cc:1503:   crosses initialization of `class timer_active_expr_t * ta'
+sdlast.cc:1498:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1493:   crosses initialization of `class expression_t * e'
+sdlast.cc:1488:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1483:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1521: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlast.cc: In method `expression_t::~expression_t()':
+sdlast.cc:1541: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlast.cc: In method `s_code_word_t unop_t::EvalGround(data_def_t *&)':
+sdlast.cc:1608: jump to case label
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1613: jump to case label
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1614: jump to case label
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1619: jump to case label
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1623: jump to case label
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1628: jump to case label
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1633: jump to case label
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1640: jump to case label
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1649: jump to case label
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1654: jump to case label
+sdlast.cc:1650:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1658: jump to case label
+sdlast.cc:1650:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1659: jump to case label
+sdlast.cc:1650:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1660: jump to case label
+sdlast.cc:1650:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1661: jump to case label
+sdlast.cc:1650:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1665: jump to case label
+sdlast.cc:1650:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1666: jump to case label
+sdlast.cc:1650:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1667: jump to case label
+sdlast.cc:1650:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc:1668: jump to case label
+sdlast.cc:1650:   crosses initialization of `class cond_expr_t * ce'
+sdlast.cc:1629:   crosses initialization of `class expression_t * e'
+sdlast.cc:1624:   crosses initialization of `class real_literal_t * r'
+sdlast.cc:1615:   crosses initialization of `class int_literal_t * i'
+sdlast.cc:1609:   crosses initialization of `class enum_ref_t * er'
+sdlast.cc:1604:   crosses initialization of `class synonym_ref_t * sr'
+sdlast.cc: In function `class data_def_t * GetType(var_ref_t *)':
+sdlast.cc:1907: jump to case label
+sdlast.cc:1904:   crosses initialization of `class array_def_t * ad'
+sdlast.cc: In method `void route_manager_t::Print(FILE *)':
+sdlast.cc:2031: name lookup of `i' changed for new ANSI `for' scoping
+sdlast.cc:2020:   using obsolete binding at `i'
+sdlast.cc: In function `int GetOutputDest(signal_def_t *, lh_list_t<ident_t> &)':
+sdlast.cc:2073: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlast.cc:2105: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlast.cc: In method `int route_manager_t::ChanIdx(heap_ptr_t)':
+sdlast.cc:2139: name lookup of `i' changed for new ANSI `for' scoping
+sdlast.cc:2136:   using obsolete binding at `i'
+In file included from sdlast.h:1782,
+                 from sdlc2.cc:17:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+In file included from sdlc2.cc:18:
+sdlc2.h: At top level:
+sdlc2.h:49: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:49: ANSI C++ forbids declaration `ln' with no type
+sdlc2.h:50: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:50: ANSI C++ forbids declaration `ln' with no type
+sdlc2.h:51: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:51: ANSI C++ forbids declaration `ln' with no type
+sdlc2.cc:141: ANSI C++ forbids declaration `fil' with no type
+sdlc2.cc:141: ANSI C++ forbids declaration `ln' with no type
+sdlc2.cc:153: ANSI C++ forbids declaration `fil' with no type
+sdlc2.cc:153: ANSI C++ forbids declaration `ln' with no type
+sdlc2.cc:158: ANSI C++ forbids declaration `fil' with no type
+sdlc2.cc:158: ANSI C++ forbids declaration `ln' with no type
+sdlc2.cc:163: ANSI C++ forbids declaration `fil' with no type
+sdlc2.cc:163: ANSI C++ forbids declaration `ln' with no type
+In file included from sdlast.h:1782,
+                 from sdlcheck.cc:17:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+In file included from sdlcheck.cc:18:
+sdlc2.h: At top level:
+sdlc2.h:49: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:49: ANSI C++ forbids declaration `ln' with no type
+sdlc2.h:50: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:50: ANSI C++ forbids declaration `ln' with no type
+sdlc2.h:51: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:51: ANSI C++ forbids declaration `ln' with no type
+sdlcheck.cc: In method `void unop_t::Check(data_def_t *&, Bool_t = False)':
+sdlcheck.cc:653: jump to case label
+sdlcheck.cc:649:   crosses initialization of `class timer_active_expr_t * ta'
+sdlcheck.cc:699: jump to case label
+sdlcheck.cc:649:   crosses initialization of `class timer_active_expr_t * ta'
+sdlcheck.cc:747: jump to case label
+sdlcheck.cc:704:   crosses initialization of `int okCnt'
+sdlcheck.cc:649:   crosses initialization of `class timer_active_expr_t * ta'
+sdlcheck.cc: In method `void block_def_t::Check()':
+sdlcheck.cc:1716: name lookup of `p' changed for new ANSI `for' scoping
+sdlcheck.cc:1699:   using obsolete binding at `p'
+In file included from sdlast.h:1782,
+                 from sdlemit.cc:17:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+In file included from sdlemit.cc:18:
+sdlc2.h: At top level:
+sdlc2.h:49: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:49: ANSI C++ forbids declaration `ln' with no type
+sdlc2.h:50: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:50: ANSI C++ forbids declaration `ln' with no type
+sdlc2.h:51: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:51: ANSI C++ forbids declaration `ln' with no type
+sdlemit.cc: In method `int unop_t::Emit(Bool_t = False)':
+sdlemit.cc:377: jump to case label
+sdlemit.cc:373:   crosses initialization of `class timer_active_expr_t * ta'
+sdlemit.cc:381: jump to case label
+sdlemit.cc:373:   crosses initialization of `class timer_active_expr_t * ta'
+sdlemit.cc:397: jump to case label
+sdlemit.cc:373:   crosses initialization of `class timer_active_expr_t * ta'
+In file included from sdlast.h:1782,
+                 from sdladdr.cc:17:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+In file included from sdladdr.cc:18:
+sdlc2.h: At top level:
+sdlc2.h:49: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:49: ANSI C++ forbids declaration `ln' with no type
+sdlc2.h:50: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:50: ANSI C++ forbids declaration `ln' with no type
+sdlc2.h:51: ANSI C++ forbids declaration `fil' with no type
+sdlc2.h:51: ANSI C++ forbids declaration `ln' with no type
+In file included from sdlrun.h:6,
+                 from sdlrun.cc:17:
+sdlast.h:318: warning: friend declaration `class ostream & operator <<(ostream &, lh_list_t<TYPE> &)'
+sdlast.h:318: warning:   declares a non-template function
+sdlast.h:318: warning:   (if this is not what you intended, make sure
+sdlast.h:318: warning:   the function template has already been declared,
+sdlast.h:318: warning:   and add <> after the function name here)
+sdlast.h:318: warning:   -Wno-non-template-friend disables this warning.
+In file included from sdlast.h:1782,
+                 from sdlrun.h:6,
+                 from sdlrun.cc:17:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlrun.cc: In function `int main(int, char **)':
+sdlrun.cc:120: name lookup of `i' changed for new ANSI `for' scoping
+sdlrun.cc:105:   using obsolete binding at `i'
+In file included from sdlrun.h:6,
+                 from smachine.cc:17:
+sdlast.h:318: warning: friend declaration `class ostream & operator <<(ostream &, lh_list_t<TYPE> &)'
+sdlast.h:318: warning:   declares a non-template function
+sdlast.h:318: warning:   (if this is not what you intended, make sure
+sdlast.h:318: warning:   the function template has already been declared,
+sdlast.h:318: warning:   and add <> after the function name here)
+sdlast.h:318: warning:   -Wno-non-template-friend disables this warning.
+In file included from sdlast.h:1782,
+                 from sdlrun.h:6,
+                 from smachine.cc:17:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+smachine.cc: In method `void trace_mgr_t::Filter(char *)':
+smachine.cc:405: name lookup of `i' changed for new ANSI `for' scoping
+smachine.cc:400:   using obsolete binding at `i'
+smachine.cc: In method `void signal_t::Print(char *)':
+smachine.cc:597: name lookup of `i' changed for new ANSI `for' scoping
+smachine.cc:592:   using obsolete binding at `i'
+smachine.cc: In method `void s_transition_t::Init(int, int)':
+smachine.cc:623: name lookup of `i' changed for new ANSI `for' scoping
+smachine.cc:617:   using obsolete binding at `i'
+smachine.cc: In method `class s_process_t * scheduler_t::NewProcess(long int, s_code_word_t *, int, int)':
+smachine.cc:1753: name lookup of `i' changed for new ANSI `for' scoping
+smachine.cc:1739:   using obsolete binding at `i'
+smachine.cc: In method `int scheduler_t::HandleCommand()':
+smachine.cc:2034: jump to case label
+smachine.cc:2021:   crosses initialization of `int tr'
+smachine.cc:2021:   crosses initialization of `int pi'
+smachine.cc:2035: jump to case label
+smachine.cc:2021:   crosses initialization of `int tr'
+smachine.cc:2021:   crosses initialization of `int pi'
+smachine.cc:2113: jump to case label
+smachine.cc:2021:   crosses initialization of `int tr'
+smachine.cc:2021:   crosses initialization of `int pi'
+smachine.cc:2114: jump to case label
+smachine.cc:2021:   crosses initialization of `int tr'
+smachine.cc:2021:   crosses initialization of `int pi'
+smachine.cc:2119: jump to case label
+smachine.cc:2021:   crosses initialization of `int tr'
+smachine.cc:2021:   crosses initialization of `int pi'
+smachine.cc:2120: jump to case label
+smachine.cc:2021:   crosses initialization of `int tr'
+smachine.cc:2021:   crosses initialization of `int pi'
+smachine.cc:2125: jump to case label
+smachine.cc:2021:   crosses initialization of `int tr'
+smachine.cc:2021:   crosses initialization of `int pi'
+smachine.cc:2126: jump to case label
+smachine.cc:2021:   crosses initialization of `int tr'
+smachine.cc:2021:   crosses initialization of `int pi'
+In file included from sdlprint.cc:18:
+sdlast.h:318: warning: friend declaration `class ostream & operator <<(ostream &, lh_list_t<TYPE> &)'
+sdlast.h:318: warning:   declares a non-template function
+sdlast.h:318: warning:   (if this is not what you intended, make sure
+sdlast.h:318: warning:   the function template has already been declared,
+sdlast.h:318: warning:   and add <> after the function name here)
+sdlast.h:318: warning:   -Wno-non-template-friend disables this warning.
+In file included from sdlast.h:1782,
+                 from sdlprint.cc:18:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdlprint.cc: In function `class ostream & operator <<(ostream &, path_t &)':
+sdlprint.cc:252: initialization of non-const reference type `class ident_t &'
+sdlprint.cc:252: from rvalue of type `ident_t'
+sdlast.h:621: in passing argument 2 of `operator <<(ostream &, ident_t &)'
+sdlprint.cc:253: initialization of non-const reference type `class ident_t &'
+sdlprint.cc:253: from rvalue of type `ident_t'
+sdlast.h:621: in passing argument 2 of `operator <<(ostream &, ident_t &)'
+sdlprint.cc: In function `class ostream & operator <<(ostream &, selector_t &)':
+sdlprint.cc:547: jump to case label
+sdlprint.cc:544:   crosses initialization of `class name_t * n'
+sdlprint.cc: In function `class ostream & operator <<(ostream &, unop_t &)':
+sdlprint.cc:619: jump to case label
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:623: jump to case label
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:627: jump to case label
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:631: jump to case label
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:635: jump to case label
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:639: jump to case label
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:643: jump to case label
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:646: jump to case label
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:649: jump to case label
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:652: jump to case label
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:655: jump to case label
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:658: jump to case label
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:662: jump to case label
+sdlprint.cc:659:   crosses initialization of `class timer_active_expr_t * ta'
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:665: jump to case label
+sdlprint.cc:659:   crosses initialization of `class timer_active_expr_t * ta'
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:671: jump to case label
+sdlprint.cc:668:   crosses initialization of `class view_expr_t * ie'
+sdlprint.cc:659:   crosses initialization of `class timer_active_expr_t * ta'
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:675: jump to case label
+sdlprint.cc:672:   crosses initialization of `class var_ref_t * vr'
+sdlprint.cc:668:   crosses initialization of `class view_expr_t * ie'
+sdlprint.cc:659:   crosses initialization of `class timer_active_expr_t * ta'
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+sdlprint.cc:679: jump to case label
+sdlprint.cc:676:   crosses initialization of `class enum_ref_t * er'
+sdlprint.cc:672:   crosses initialization of `class var_ref_t * vr'
+sdlprint.cc:668:   crosses initialization of `class view_expr_t * ie'
+sdlprint.cc:659:   crosses initialization of `class timer_active_expr_t * ta'
+sdlprint.cc:640:   crosses initialization of `class cond_expr_t * ce'
+sdlprint.cc:628:   crosses initialization of `class expression_t * e'
+sdlprint.cc:620:   crosses initialization of `class real_literal_t * r'
+sdlprint.cc:616:   crosses initialization of `class int_literal_t * i'
+/usr/libexec/elf/ld: cannot find -lg++
+In file included from sdlast.h:1782,
+                 from sdlpp.cc:20:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+gcc: sdlpp.o: No such file or directory
+gcc: sdlast.o: No such file or directory
+gcc: sdlc1.o: No such file or directory
+gcc: sdlparse.o: No such file or directory
+gcc: sdlast.o: No such file or directory
+gcc: sdlc2.o: No such file or directory
+gcc: sdlast.o: No such file or directory
+gcc: sdlcheck.o: No such file or directory
+gcc: sdlemit.o: No such file or directory
+gcc: sdladdr.o: No such file or directory
+gcc: sdlrun.o: No such file or directory
+gcc: smachine.o: No such file or directory
+gcc: sdlast.o: No such file or directory
+gcc: sdlprint.o: No such file or directory
+In file included from sdlast.h:1782,
+                 from sdl2cpp.cc:18:
+sdlast.inl: In method `process_def_t::process_def_t(name_t = (*noName))':
+sdlast.inl:257: ambiguous overload for `heap_ptr_t & = int'
+sdlast.h:120: candidates are: class heap_ptr_t & heap_ptr_t::operator =(const s_code_word_t &)
+sdlast.h:126:                 class heap_ptr_t & heap_ptr_t::operator =(const u_s_code_word_t &)
+sdlast.h:131:                 class heap_ptr_t & heap_ptr_t::operator =(const heap_ptr_t &)
+sdl2cpp.cc: In function `void Convert(unop_t *, FILE *)':
+sdl2cpp.cc:370: jump to case label
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:374: jump to case label
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:380: jump to case label
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:386: jump to case label
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:392: jump to case label
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:398: jump to case label
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:402: jump to case label
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:405: jump to case label
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:408: jump to case label
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:411: jump to case label
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:414: jump to case label
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:417: jump to case label
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:421: jump to case label
+sdl2cpp.cc:418:   crosses initialization of `class timer_active_expr_t * ta'
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:424: jump to case label
+sdl2cpp.cc:418:   crosses initialization of `class timer_active_expr_t * ta'
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:430: jump to case label
+sdl2cpp.cc:418:   crosses initialization of `class timer_active_expr_t * ta'
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:433: jump to case label
+sdl2cpp.cc:418:   crosses initialization of `class timer_active_expr_t * ta'
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc:437: jump to case label
+sdl2cpp.cc:434:   crosses initialization of `class enum_ref_t * er'
+sdl2cpp.cc:418:   crosses initialization of `class timer_active_expr_t * ta'
+sdl2cpp.cc:399:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:381:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:371:   crosses initialization of `class real_literal_t * r'
+sdl2cpp.cc:367:   crosses initialization of `class int_literal_t * i'
+sdl2cpp.cc: In function `void Convert(data_def_t &)':
+sdl2cpp.cc:556: jump to case label
+sdl2cpp.cc:551:   crosses initialization of `class array_def_t * a'
+sdl2cpp.cc:572: jump to case label
+sdl2cpp.cc:551:   crosses initialization of `class array_def_t * a'
+sdl2cpp.cc: In function `void GetCounts(unop_t *)':
+sdl2cpp.cc:1243: jump to case label
+sdl2cpp.cc:1240:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:1247: jump to case label
+sdl2cpp.cc:1244:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:1240:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc:1250: jump to case label
+sdl2cpp.cc:1244:   crosses initialization of `class cond_expr_t * ce'
+sdl2cpp.cc:1240:   crosses initialization of `class expression_t * e'
+sdl2cpp.cc: In function `void Convert2Class(char *, lh_list_t<state_node_t> &, lh_list_t<variable_def_t> &, transition_t &, lh_list_t<procedure_def_t> *, lh_list_t<process_formal_param_t> *, lh_list_t<procedure_formal_param_t> *)':
+sdl2cpp.cc:1625: initialization to `char *' from `const char *' discards qualifiers
+sdl2cpp.cc: In function `int main(int, char **)':
+sdl2cpp.cc:2383: implicit declaration of function `int unlink(...)'
+gcc: sdl2cpp.o: No such file or directory
+gcc: sdlast.o: No such file or directory

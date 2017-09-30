@@ -1,0 +1,71 @@
+/* Test:
+ *
+ * Remote definitions with no references
+ * Duplicate remote definitions
+ * Remote references with no definitions
+ * Bad closing IDs
+ */
+
+SYSTEM daemon_game;
+	SIGNAL s1, s2;
+	BLOCK b1 REFERENCED;
+	BLOCK b2 REFERENCED;
+	SIGNALLIST sl = s1, s2, crap;
+
+CHANNEL c1
+	FROM ENV TO b1
+	WITH s1;
+	FROM b1 TO ENV
+	WITH s2;
+ENDCHANNEL c1;
+
+CHANNEL c2
+	FROM ENV TO ENV
+	WITH s1;
+ENDCHANNEL c2;
+
+CHANNEL c3
+	FROM b1 TO b1
+	WITH s1;
+ENDCHANNEL c3;
+
+CHANNEL c4
+	FROM ENV TO b1
+	WITH s1;
+	FROM b1 TO b2
+	WITH s2;
+ENDCHANNEL c4;
+
+CHANNEL c5
+	FROM b2 TO b1
+	WITH s1;
+	FROM b1 TO b3
+	WITH s2;
+ENDCHANNEL c5;
+
+CHANNEL c6
+	FROM c5 TO b1
+	WITH s1;
+	FROM b1 TO c5
+	WITH s2;
+ENDCHANNEL c6;
+
+ENDSYSTEM;
+
+BLOCK SYSTEM daemon_game b1;
+	PROCESS p1 REFERENCED;
+ENDBLOCK;
+
+BLOCK SYSTEM daemon_game b1;
+	PROCESS p2 REFERENCED;
+ENDBLOCK SYSTEM daemon_game b2;
+
+BLOCK SYSTEM daemon_game b3;
+	PROCESS p3 REFERENCED;
+ENDBLOCK;
+
+PROCESS SYSTEM daemon_game/BLOCK b1 p1;
+	SIGNALSET s1, t1, (sl), (nolist);
+	START;
+		STOP;
+ENDPROCESS;

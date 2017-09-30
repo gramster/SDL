@@ -1,0 +1,46 @@
+
+system test;
+	block testblk;
+		process testprocess referenced;
+	endblock;
+endsystem;
+
+process system test/block testblk testprocess(1,1);
+
+	procedure testprocedure;
+
+		procedure testprocedure2;
+			start;
+				write 1;
+				write self;
+				nextstate stateA;
+			state stateA;
+				provided true;
+					write -1;
+					return;	     	
+		endprocedure;
+
+		start;
+			Write 0;
+			write self;
+			call testprocedure2;
+			nextstate stateB;
+		state stateB;
+			provided true;
+				Write 0;
+				return;
+	endprocedure;
+
+	start;
+		nextstate idle;
+	state idle;
+		provided true;
+			call testprocedure;
+			write 2;
+			write self;
+			nextstate done;
+	state done;
+		provided true;
+			write -2;
+			stop;
+endprocess;

@@ -1,0 +1,58 @@
+/* Test of macros with params. Should produce:
+
+0      C 1  
+0      C 2  
+0      C 3  
+0      D 2  
+0      D 1  
+0      C 4
+### 256
+### 266
+0      D 3
+### 259
+0      D 4
+*/
+
+system test;
+	block testblk;
+		process testprocess referenced;
+		process testprocess2 referenced;
+	endblock;
+endsystem;
+
+macrodefinition xxx
+    fpar bv, ivar, ival;
+		provided bv;
+		task ivar := ivar + ival;
+		nextstate macroid;
+	state macroid;
+endmacro xxx;
+
+process system test/block testblk testprocess2(0,);
+fpar x integer, zz integer;
+	start;
+		write x;
+		write zz;
+		nextstate stateA;
+	state stateA;
+		macro xxx(true,x,1);
+		macro xxx(true,x,1);
+		macro xxx(true,x,1);
+		provided true;
+		write x;
+		stop;
+endprocess;
+
+process system test/block testblk testprocess(1,1);
+	dcl y integer := 256, z pid;
+
+	start;
+		create testprocess2(y, y+10);
+		create testprocess2(y, y+20);
+		create testprocess2(y, y+30);
+		nextstate idle;
+	state idle;
+		provided true;
+/*		create testprocess2(y, y+10);*/
+		stop;
+endprocess;

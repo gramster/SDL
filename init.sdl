@@ -1,0 +1,131 @@
+PROCESS Initiator (1,1) ;
+
+  SIGNALSET ICONreq, DR, CC, IDATreq, AK ;
+
+  DCL Counter Integer,
+      Z       Real,
+      d       ISDUtype,
+      Num     Natural,
+      Number  Natural,
+      Loss    Natural,
+      P       Duration ;
+
+  TIMER tc, td ;
+
+    START ;
+          NEXTSTATE Disconnected ;
+
+    STATE Disconnected ;
+
+      SAVE  IDATreq ;
+
+      INPUT ICONreq ;
+          TASK Zaehler := 1, Z := 1.0 ;
+          OUTPUT CR ;
+          SET (NOW+P,tc) ;
+          NEXTSTATE Wait ;
+
+      INPUT DR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : OUTPUT IDISind ;
+                    NEXTSTATE - ;
+          ENDDECISION ;
+
+    ENDSTATE Disconnected ;
+
+
+    STATE Wait ;
+
+      SAVE  IDATreq ;
+
+      INPUT CC ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : RESET (tc) ;
+                    TASK Number := 1 ;
+                    OUTPUT ICONconf ;
+                    NEXTSTATE Connected ;
+          ENDDECISION ;
+
+      INPUT tc ;
+          DECISION Counter < 4 ;
+            (True): OUTPUT CR ;
+                    TASK Counter := Counter + 1,
+                         Z := Z + 1.0 ;
+                    SET (NOW+P,tc) ;
+                    NEXTSTATE - ;
+            ELSE  : OUTPUT IDISind ;
+                    NEXTSTATE Disconnected ;
+          ENDDECISION ;
+
+      INPUT DR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : RESET (tc) ;
+                    OUTPUT IDISind ;
+                    NEXTSTATE Disconnected ;
+          ENDDECISION ;
+
+    ENDSTATE Wait ;
+
+
+    STATE Connected ;
+
+      INPUT IDATreq (d) ;
+          OUTPUT DT (Number,d) ;
+          TASK Counter := 1, Z := 1.0 ;
+          SET (NOW+P,td) ;
+          NEXTSTATE Sending ;
+
+      INPUT DR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : RESET (tc) ;
+                    OUTPUT IDISind ;
+                    NEXTSTATE Disconnected ;
+          ENDDECISION ;
+
+    ENDSTATE Connected ;
+
+
+    STATE Sending ;
+
+      SAVE  IDATreq
+
+      INPUT AK (Num) ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : RESET (td) ;
+                    DECISION Num = Number ;
+                      (True): TASK Number := (Number+1) MOD 2 ;
+                              NEXTSTATE Connected ;
+                      ELSE  :
+                              l:
+                              DECISION Counter < 4 ;
+                                (True): OUTPUT DT (Number, d) ;
+                                        TASK Counter := Counter + 1 ;
+                                        Z := Z + 1.0 ;
+                                        SET (NOW+P,td) ;
+                                        NEXTSTATE Sending ;
+                                ELSE  : OUTPUT IDISind ;
+                                        NEXTSTATE Disconnected ;
+                              ENDDECISION ;
+                    ENDDECISION ;
+          ENDDECISION ;
+
+      INPUT td ;
+          JOIN l ;
+
+      INPUT DR ;
+          DECISION Loss = 1 ;
+            (True): NEXTSTATE - ;
+            ELSE  : RESET (td) ;
+                    OUTPUT IDISind ;
+                    NEXTSTATE Disconnected ;
+          ENDDECISION ;
+
+    ENDSTATE Sending ;
+    
+ENDPROCESS Initiator ;
+

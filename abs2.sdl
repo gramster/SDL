@@ -1,0 +1,173 @@
+/* this fakes around the fact that signal arguments aren't copied yet */
+
+system ab_example; /* Simple Alternating-Bit example with loopback provider
+								with no delay */
+
+	newtype Packet array (0) of character endnewtype
+	/* Signals that can be exchanged, and the types of their parameters */
+
+
+	signal
+		u_data_req(Packet), u_data_rsp, u_data_ind(Packet),
+		p_data_req(Integer,Packet), p_data_ind(Integer,Packet),
+		p_ack_req(Integer), p_ack_ind(Integer);
+
+	/* Forward declarations of blocks, needed for channel defns */
+
+	block User referenced;
+	block Protocol referenced;
+	block Provider referenced;
+
+	/* Channel definitions. Channels connect blocks. */
+
+	channel upper_Ch
+		from User to Protocol
+			with u_data_req;
+		from Protocol to User
+			with u_data_ind, u_data_rsp;
+	endchannel upper_Ch;
+
+	channel lower_Ch
+		from Protocol to Provider
+			with p_data_req, p_ack_req;
+		from Provider to Protocol
+			with p_data_ind, p_ack_ind;
+	endchannel lower_Ch;
+
+	/* Provider Block */
+
+	block Provider;
+		process ProvControl referenced; /* Forward declaration with 
+															 initial & max # of instances */
+		connect lower_Ch and Comm;				/* External channel connection */
+
+		/* Signalroutes connect processes within a block to each other
+			and the external environment (channels) */
+
+		signalroute Comm
+			from ProvControl to env
+				with p_data_ind, p_ack_ind;
+			from env to ProvControl
+				with p_data_req, p_ack_req;
+	endblock Provider;
+
+	/* Protocol block */
+
+	block Protocol;
+		process ProtControl referenced;
+		connect lower_Ch and PComm;
+		connect upper_Ch and UComm;
+		signalroute PComm
+			from ProtControl to env
+				with p_data_req, p_ack_req;
+			from env to ProtControl
+				with p_data_ind, p_ack_ind;
+		signalroute UComm
+			from env to ProtControl
+				with u_data_req;
+			from ProtControl to env
+				with u_data_ind, u_data_rsp;
+	endblock Protocol;
+
+	/* User block */
+
+	block User;
+		process UserControl referenced;
+		signalroute Comm
+			from UserControl to env
+				with u_data_req;
+			from env to UserControl
+				with u_data_ind, u_data_rsp;
+		connect upper_Ch and Comm;
+	endblock User;
+endsystem ab_example;
+
+/* Each  block has a single controlling process */
+
+process system ab_example/block Provider ProvControl(1,1);
+	dcl seq Integer;
+	dcl data Packet;
+	start;
+		nextstate idle;
+	state idle;
+		input p_data_req(seq,data);
+			output p_data_ind(seq,data);
+			nextstate -;
+		input p_ack_req(seq);
+			output p_ack_ind(seq);
+			nextstate -;
+endprocess;
+
+process system ab_example/block Protocol ProtControl(1,1);
+	dcl sn Integer;
+	dcl rn Integer;
+	dcl seq Integer;
+	dcl data Packet;
+	dcl tm Duration := 3;
+	timer Timeout;
+	start;
+		task sn := 0;
+		task rn := 0;
+		nextstate idle;
+	state idle;
+		input u_data_req(data);
+			output p_data_req(sn, data);
+			set (now + tm, Timeout); 
+			nextstate wait;
+		input p_ack_ind(seq);
+			/* Do nothing */
+			nextstate -;
+	state wait;
+		input p_ack_ind(seq);
+			decision seq = sn;
+			( false ) : /* do nothing */
+				task sn := (sn + 1) mod 2;
+				output u_data_rsp;
+				nextstate idle;
+			( true )  :
+				task sn := (sn + 1) mod 2;
+				output u_data_rsp;
+				nextstate idle;
+			enddecision;
+		input Timeout;
+			output p_data_req(sn, data);
+			set (now + tm, Timeout); 
+			nextstate -;
+	state *;
+		input p_data_ind(seq, data);
+			decision seq = rn;
+			( false ) : /* do nothing */
+				output u_data_ind(data);
+				output p_ack_req(rn);
+				task rn := (rn + 1) mod 2;
+			( true )  :
+				output u_data_ind(data);
+				output p_ack_req(rn);
+				task rn := (rn + 1) mod 2;
+			enddecision;
+			nextstate -;
+endprocess;
+
+process system ab_example/block User UserControl(1,1);
+	dcl data Packet;
+	dcl delayWait duration := 3;
+	timer sendDelay;
+	start;
+		nextstate sendfirst;
+	state sendfirst;
+		provided True;
+			output u_data_req(data);
+			nextstate idle;
+	state idle;
+		input u_data_rsp;
+			set (now + delayWait, sendDelay);
+			nextstate -;
+		input u_data_ind(data);
+			/* consume */
+			nextstate -;
+		input sendDelay;
+			output u_data_req(data);
+			nextstate -;
+endprocess;
+
+

@@ -1,0 +1,453 @@
+SYSTEM tftp_communication;
+  
+  NEWTYPE Data
+	array (0) of character;
+  ENDNEWTYPE
+
+  NEWTYPE String
+	array (0) of character;
+  ENDNEWTYPE
+  
+  NEWTYPE REQPacket
+     STRUCT 
+        opcode Integer;
+	filename String;
+	id PId;
+  ENDNEWTYPE
+      
+  NEWTYPE DATAPacket
+     STRUCT
+        opcode Integer;
+	id PId;
+	block_number Integer;
+	block_size Boolean;
+        data Data;
+  ENDNEWTYPE
+
+  NEWTYPE ACKPacket
+     STRUCT
+	opcode Integer;
+	id PId;
+	block_number Integer;
+  ENDNEWTYPE
+
+  NEWTYPE ERRORPacket
+     STRUCT
+	opcode Integer;
+	id PId;
+	error_code Integer;
+	error_msg String;
+  ENDNEWTYPE
+
+  SIGNAL 
+        usr_req(REQPacket), usr_data_rsp,
+        pkt_data_ind(DATAPacket), pkt_ack_ind(ACKPacket),
+	/* request the other host to retransmit data/ack packet */
+        pkt_ack_req(DATAPacket), pkt_data_req(ACKPacket),
+	pkt_error(ERRORPacket);
+
+  CHANNEL ISAPini
+	from UserA to Client
+	       with usr_req;
+	from Client to UserA 
+	       with usr_data_rsp;
+                    /* usr_data_ind;*/
+  ENDCHANNEL ISAPini;
+
+  CHANNEL ISAPrec
+	from UserB to Server
+		with usr_data_rsp, pkt_error;
+	from Server to UserB
+		with pkt_data_req;
+  ENDCHANNEL ISAPrec;
+	
+  CHANNEL Network
+	FROM Client to Server
+		WITH usr_data_req, pkt_data_ind, pkt_ack_req,
+		     pkt_ack_ind, pkt_data_req, pkt_error;
+	FROM Server to Client
+		WITH pkt_ack_ind, pkt_data_req,
+		     pkt_data_ind, pkt_ack_req, pkt_error;
+  ENDCHANNEL Network;
+
+  BLOCK UserA;
+	PROCESS User_Initiator REFERENCED;
+	SIGNALROUTE Ini
+		FROM User_Initiator TO env
+			WITH usr_req;
+		FROM env TO User_Initiator
+			WITH usr_data_rsp;
+	CONNECT ISAPini AND Ini;
+  ENDBLOCK UserA;
+
+  BLOCK UserB;
+	PROCESS User_Responder REFERENCED;
+	SIGNALROUTE Resp
+		FROM User_Responder TO env
+			WITH usr_data_rsp, pkt_error;
+		FROM env TO User_Responder
+			WITH pkt_data_req;
+	CONNECT ISAPrec AND Resp;
+  ENDBLOCK UserB;
+
+  BLOCK Client;
+	PROCESS Initiator REFERENCED;
+ 	SIGNALROUTE ClientComm
+		FROM Client TO env
+			WITH usr_data_req, pkt_data_ind, pkt_ack_req,
+			     pkt_ack_ind, pkt_data_req, pkt_error;
+		FROM env TO Client
+			WITH usr_req, pkt_ack_ind, pkt_data_req,
+			     pkt_data_ind, pkt_ack_req, pkt_error;
+	CONNECT Network AND ClientComm;
+  ENDBLOCK Client;
+
+  BLOCK Server;
+	PROCESS Responder REFERENCED;
+	SIGNALROUTE ServerComm
+		FROM Server TO env
+			WITH usr_data_rsp, pkt_ack_ind, pkt_data_req,
+			     pkt_data_ind, pkt_ack_req, pkt_error;
+		FROM env TO Server
+			WITH usr_data_req, pkt_data_ind, pkt_ack_req,
+			     pkt_ack_ind, pkt_data_req, pkt_error;
+	CONNECT Network AND ServerComm;
+  ENDBLOCK Server;
+ENDSYSTEM tftp_communication;
+
+  PROCESS SYSTEM tftp_communication/BLOCK UserA User_Initiator(1,1);
+	DCL req_pkt REQPacket; 
+      	DCL counter Integer;
+	START;
+		TASK counter := 0;
+		NEXTSTATE idle;
+	STATE idle;
+	    PROVIDED TRUE;	            
+		DECISION counter = 0;
+		(true) :
+		       TASK req_pkt!opcode := 2;			
+		       OUTPUT usr_req(req_pkt);
+ 		       NEXTSTATE wait;
+		(false) :
+			TASK req_pkt!opcode := 1;
+			OUTPUT usr_req(req_pkt);
+	               NEXTSTATE wait;
+		ENDDECISION;
+	STATE wait;
+		input usr_data_rsp;
+		DECISION counter = 0;
+	       	(true) :
+			TASK counter := 1;
+			NEXTSTATE idle;
+		(false) :
+		        TASK counter := 0;
+			NEXTSTATE idle;
+		ENDDECISION;	
+  ENDPROCESS;
+
+  PROCESS SYSTEM tftp_communication/BLOCK UserB User_Responder(1,1);
+	DCL req REQPacket;
+	DCL counter Integer;
+	DCL req_denied ERRORPacket;
+	START;
+		TASK counter:= 0;
+		NEXTSTATE idle;
+	STATE idle;
+		INPUT usr_data_req(req);
+		DECISION counter = 0;
+		(false) :
+			DECISION counter = 9;
+			(true) :
+				TASK counter := 0;
+			(false) :
+				TASK counter := counter + 1;
+			ENDDECISION;
+		        OUTPUT  usr_data_rsp;
+			NEXTSTATE idle;
+		(true) : 
+			TASK counter := counter + 1;
+			TASK req_denied!opcode := 5;
+			DECISION req!opcode = 1;
+			(true) :
+				TASK req_denied!error_code := 1;
+			(false) :
+				TASK req_denied!error_code := 2;
+			ENDDECISION;
+			OUTPUT pkt_error(req_denied);
+			NEXTSTATE idle;
+		ENDDECISION;
+	STATE wait;
+            PROVIDED TRUE;
+		OUTPUT usr_data_rsp;
+		NEXTSTATE idle;	
+  ENDPROCESS;
+
+  PROCESS SYSTEM tftp_communication/BLOCK Client Initiator(1,1);
+	DCL req_pkt REQPacket;
+	DCL err_pkt ERRORPacket;
+	DCL ack_pkt ACKPacket;
+	DCL data_pkt DATAPacket;
+	DCL TId PId;
+	DCL TId_sender PId;
+	DCL read_write Integer;
+	DCL last Integer;
+	DCL prev_ack_pkt ACKPacket;
+	DCL prev_data_pkt DATAPacket;
+	DCL block_count Integer;
+	DCL ack_count Integer;
+  	START;
+		TASK TId:=SELF;
+		TASK ack_count:=0;
+		TASK block_count:=1;
+		TASK last:=1;
+		NEXTSTATE call_request;
+	STATE call_request;
+		INPUT usr_req(req_pkt);
+		TASK req_pkt!id:=TId;
+		DECISION req_pkt!opcode = 1;
+		(true) :
+			TASK read_write:=1;
+		ELSE : 
+			TASK read_write:=2;
+		ENDDECISION;
+		OUTPUT usr_data_req(req_pkt);
+		NEXTSTATE wait_response;
+	STATE wait_response;
+		INPUT pkt_error(err_pkt);
+	        OUTPUT usr_data_rsp;
+		NEXTSTATE call_request;
+		INPUT pkt_ack_ind(ack_pkt);
+		DECISION read_write = 2;
+		(false) :
+		(true) :
+                        DECISION ack_pkt!block_number = 0;
+		        (true) :
+				TASK TId_sender:=ack_pkt!id;
+				NEXTSTATE transmit_data;
+			(false) : OUTPUT usr_data_rsp;
+				  NEXTSTATE call_request;
+			ENDDECISION;
+		ENDDECISION;
+		INPUT pkt_data_ind(data_pkt);
+		DECISION read_write = 1;
+		(false) :
+		(true) :
+	                DECISION data_pkt!block_number = 1;
+			(true) :
+				TASK TId_sender:=data_pkt!id;
+				TASK block_count:=2;
+				TASK ack_count:=1;
+				NEXTSTATE transmit_ack;
+			(false) : OUTPUT usr_data_rsp;
+				  NEXTSTATE call_request;
+			ENDDECISION;
+		ENDDECISION;
+		NEXTSTATE -;
+	STATE transmit_data;
+            PROVIDED TRUE;
+		TASK data_pkt!id:=TId;
+		TASK data_pkt!block_number:=block_count;
+		TASK ack_count:=block_count;
+		TASK block_count:=block_count + 1;
+	        TASK data_pkt!opcode:=3;
+		DECISION last = 5;
+		(false) :		
+			TASK data_pkt!block_size:=1;
+		(true) :
+			TASK data_pkt!block_size:=0;
+		ENDDECISION;
+		TASK prev_data_pkt:=data_pkt;
+		OUTPUT pkt_data_ind(data_pkt);
+		NEXTSTATE wait_for_ack;
+	STATE wait_for_ack ;
+/*		INPUT pkt_error(err_pkt);
+	        OUTPUT usr_data_rsp;
+		NEXTSTATE call_request; */
+		INPUT pkt_ack_ind(ack_pkt);
+		DECISION ack_pkt!id = TId_sender;
+		(true) : 
+			DECISION ack_pkt!block_number = ack_count;
+			(true) :
+				TASK ack_count := ack_count+1;
+				DECISION last=5;
+				(true) : OUTPUT usr_data_rsp;
+					 TASK last:=1;
+					 NEXTSTATE call_request;
+				(false) :
+					 TASK last:=last+1;
+					 NEXTSTATE transmit_data;
+				ENDDECISION;
+			(false) : 
+				 DECISION ack_pkt!block_number = ack_count-1;
+				 (false) : 
+					  NEXTSTATE -;
+				 (true) : OUTPUT pkt_data_ind(prev_data_pkt);
+					  NEXTSTATE -;
+				 ENDDECISION;
+			ENDDECISION;
+		(false) : NEXTSTATE -;
+		ENDDECISION;
+	STATE transmit_ack;
+           PROVIDED TRUE;
+		TASK ack_pkt!opcode:=4;
+		TASK ack_pkt!id:=TId;
+		TASK ack_pkt!block_number:=ack_count;
+		TASK ack_count:=ack_count+1;
+		TASK prev_ack_pkt:=ack_pkt;
+		OUTPUT pkt_ack_ind(ack_pkt);
+		NEXTSTATE wait_for_data;
+	STATE wait_for_data;
+/*		INPUT pkt_error(err_pkt);
+	        OUTPUT usr_data_rsp;
+		NEXTSTATE call_request; */
+		INPUT pkt_data_ind(data_pkt);
+		DECISION data_pkt!id = TId_sender;
+		(true) : 
+			DECISION data_pkt!block_number = block_count;
+			(true) :
+				TASK block_count := block_count+1;
+				DECISION data_pkt!block_size=0;
+				(true) : 
+					/* !!!wait awhile and then terminate*/
+					OUTPUT usr_data_rsp;
+					NEXTSTATE call_request;
+				(false):
+					 NEXTSTATE transmit_ack;
+				ENDDECISION;
+			(false) :
+				DECISION data_pkt!block_number = ack_count-1;
+				(true) : OUTPUT pkt_ack_ind(prev_ack_pkt);
+					 NEXTSTATE -;
+				(false): NEXTSTATE -; 
+				ENDDECISION;
+			ENDDECISION;
+		(false) : NEXTSTATE -;
+		ENDDECISION;
+  ENDPROCESS;
+
+  PROCESS SYSTEM tftp_communication/BLOCK Server Responder(1,1);
+	DCL req_pkt REQPacket; 
+	DCL err_pkt ERRORPacket;
+	DCL ack_pkt ACKPacket;
+	DCL data_pkt DATAPacket;
+	DCL TId PId;
+	DCL TId_sender PId;
+	DCL last Integer;
+	DCL read_write Integer;
+	DCL prev_ack_pkt ACKPacket;
+	DCL prev_data_pkt DATAPacket;
+	DCL block_count Integer;
+	DCL ack_count Integer;
+	START;
+		TASK TId:=SELF;
+		TASK block_count:=0;
+		TASK last:=1;
+		NEXTSTATE call_incoming;
+	STATE call_incoming;
+		INPUT usr_data_req(req_pkt);
+		TASK TId_sender:=req_pkt!id;
+		DECISION req_pkt!opcode = 1;
+		(true) :
+			TASK read_write:=1;
+			TASK ack_count:=1;
+		ELSE :
+			TASK read_write:=2;
+			TASK ack_count:=0;
+		ENDDECISION;
+		OUTPUT usr_data_req(req_pkt);
+		NEXTSTATE accept_call;
+	STATE accept_call;
+		INPUT pkt_error(err_pkt);
+		TASK err_pkt!id:=TId;
+		OUTPUT pkt_error(err_pkt);
+		NEXTSTATE call_incoming;
+		INPUT usr_data_rsp;
+		DECISION read_write=1;
+		(true) : 
+			NEXTSTATE transmit_data;
+		(false) : 
+			NEXTSTATE transmit_ack;
+		ENDDECISION;
+		NEXTSTATE -;		
+	STATE transmit_data;
+            PROVIDED TRUE;
+		TASK data_pkt!id:=TId;
+		TASK data_pkt!block_number:=block_count;
+		TASK ack_count:=block_count;
+		TASK block_count:=block_count+1;
+		TASK data_pkt!opcode:=3;
+		DECISION last = 5;
+		(false) : 
+			TASK data_pkt!block_size:=1;
+		(true) :
+			TASK data_pkt!block_size:=0;
+		ENDDECISION;
+		TASK prev_data_pkt:=data_pkt;
+		OUTPUT pkt_data_ind(data_pkt);
+		NEXTSTATE wait_for_ack;
+	STATE wait_for_ack;
+/* 		INPUT pkt_error(err_pkt);
+		NEXTSTATE call_incoming; */
+		INPUT pkt_ack_ind(ack_pkt);
+		DECISION ack_pkt!id = TId_sender;
+		(true) :
+	       		DECISION ack_pkt!block_number = ack_count;
+			(true) : 
+				TASK ack_count:=ack_count+1;
+				DECISION last=5;
+				(true) : 
+				        TASK last:=1;
+					NEXTSTATE call_incoming;
+				(false) : 
+					TASK last:=last+1;
+					NEXTSTATE transmit_data;
+				ENDDECISION;
+			(false) : 
+				DECISION ack_pkt!block_number=ack_count-1;
+				(false):
+					NEXTSTATE -;
+				(true) : 
+					OUTPUT pkt_data_ind(prev_data_pkt);
+					NEXTSTATE -;
+				ENDDECISION;
+			ENDDECISION;
+		(false) :
+			NEXTSTATE -;
+		ENDDECISION;
+       	STATE transmit_ack;
+            PROVIDED TRUE;
+		TASK ack_pkt!opcode:=4;
+		TASK ack_pkt!id:=TId;
+		TASK ack_pkt!block_number:=ack_count;
+		TASK ack_count:=ack_count+1;
+		TASK prev_ack_pkt:=ack_pkt;
+		OUTPUT pkt_ack_ind(ack_pkt);
+		NEXTSTATE wait_for_data;
+	STATE wait_for_data;
+/*		INPUT pkt_error(err_pkt);
+		NEXTSTATE call_incoming; */
+		INPUT pkt_data_ind(data_pkt);
+		DECISION data_pkt!id = TId_sender;
+		(true) : 
+			DECISION data_pkt!block_number = block_count;
+			(true) :
+				TASK block_count := block_count+1;
+				DECISION data_pkt!block_size=0;
+				(true) : 
+					/* !!!wait awhile and then terminate*/
+				      	 NEXTSTATE call_incoming;
+				(false) :
+					 NEXTSTATE transmit_ack;
+				ENDDECISION;
+			(false) :
+				DECISION data_pkt!block_number = ack_count-1;
+				(true) : OUTPUT pkt_ack_ind(prev_ack_pkt);
+					 NEXTSTATE -;
+				(false): NEXTSTATE -; 
+				ENDDECISION;
+			ENDDECISION;
+		(false) : NEXTSTATE -;
+		ENDDECISION;		
+  ENDPROCESS;
+
+  

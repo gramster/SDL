@@ -1,0 +1,80 @@
+SDL (Specification and Description Language).
+
+Started 1972, first standard 1976; four-year CCITT review with
+major revisions 1984, 1988, and 1992? Standard Z.100
+
+SDL concentrates on the *behaviour* of systems.
+
+SDL can be used for both specification and description (design).
+
+Considered by some to be the `language of system engineers'.
+
+Developed for telecommunication, but can be used for all kinds of
+interactive and real-time systems. Although not intended for
+implementations, it can be translated to other languages.
+
+Diffs between implementation and spec - spec should:
+
+* give an overview of a complex system
+* postpone implementation decisions
+* not excluded valid implementations
+
+SYSTEMS AND SYSTEM INSTANCES
+
+The fundamental object in SDL is the *system*, which interacts with
+everything outside itself (the *environment*) if it is *open*.
+
+SDL specifications define a type, of which a number of instances can be
+created. 
+
+The behaviour of a system instance is defined by the combined behaviour of
+a number of process instances. Each process instance is a FSM. The
+FSMs communicate asynchronously with each other and the environment
+using signals (signal instances). Each process has a unique address,
+and each signal includes the sender and receiver process addresses.
+Within a channel, each signal experiences a nondeterministic delay (SDL'92
+adds non-delay channels). Channels may be uni- or bidirectional.
+
+Each process instance has a set of private variables. Variables can be
+exported to and imported from other processes - this actually causes the
+value to be communicated rather than the variable to be shared. A variable
+can be `revealed' in one and `viewed' from another process; i.e. readonly
+access.
+
+Processes have infinite FIFO input queues where incoming signals are
+placed. A process instance is either waiting in some state or performing 
+a transition between two states. A transition is initiated by a signal in
+the input queue. There may be an additional enabling condition. SDL also
+allows spontaneous transitions.
+
+STRUCTURE
+
+A system instance contains one or more block instances connected with each
+other and with the boundary of the system instance by channel instances. A
+block instance contains sets of process instances connected via signal
+route instances. A block instance can also be partitioned into lower level
+block instances. Partitioned blocks may contain only subblocks. Thus a tree
+is created as in Estelle.
+
+ABSTRACT DATA TYPE
+
+MISC
+
+No exception handling; after a run-time error the future behaviour of the
+system is undefined.
+
+Processes may be created and terminated dynamically. A process can be
+terminated only by itself. New processes have equal status to their
+initiators.
+
+A signal can be *saved* by a transition, in which case it is not consumed
+by the execution of the transition.
+
+Processes in SDL have access to the global time in a predefined variable
+`now'. There are two predefined related types, `time' and `duration'.
+
+A timer is an object owned by a process that can insert timer signals into
+the input queue of the process.
+
+SDL includes text macros with parameters.
+

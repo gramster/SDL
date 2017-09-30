@@ -1,0 +1,66 @@
+sdl2cpp:
+	exports/views, These don't compile properly anyway.
+	Note that views are for processes within the same block.
+
+	signal count statistics in sdlrte
+
+Revealed variable should be declared private, and each one
+should have a public method associated with it to get the
+value. For each viewed variable, a method should be generated
+to get a pointer to a process of the appropriate type/id, and
+call its reveal method to get the value (a reference to the
+value should be returned). VIEW expressions are then converted
+to calls to these methods.
+
+For each exported variable, a copy of the variable should also
+be declared, together with a reveal method as above. EXPORT
+statements should assign to the copy. IMPORTs are then the same as
+VIEWs.
+
+Implement Value(enum) function
+Check type casting of parameters (synonyms esp)
+Check decompile of view expressions.
+Implement CharString types.
+Make informal text tasks convert to WRITEs in code generation.
+
+Check type operators (all have = and /=):
+	Boolean: not, or, xor, and
+	Character: >, <, >=, <= plus literals 'x', LF, CR, FF, etc.
+	CharString: mkstring(char), length(str), first(str),
+		last(str), //, extract!(str,i), modify!(s,i,c),
+		substring(s,i,n)
+	Integer: >, <, >=, <=, - (monadic and binary), +, /, *,
+		float(i), fix(r)
+	Natural: as for Integer
+	Real: >, <, >=, <=, - (monadic and binary), +, /, *
+	PId: literal NULL??
+	Duration: literals as for Real. >, -, +, /, *
+	Time: literals as for Real. >, <, <=, >=, - (right arg may
+		be time or duration), + (right arg duration)
+
+Check all handling of PE_NLITERAL. Note that naturals are actually
+a syntype of integers.
+
+Implement transition alternatives.
+
+Implement stack use computation for temporary space required by
+module/trans, and report if stack will be blown by a transition
+before executing it. Especially important once string types are
+done.
+
+Check port handling in procedures (should be OK).
+
+Implement service decompositions, substructures and signal refinements.
+Update to SDL '92.
+Implement sets?
+
+Implement external environment.
+
+CHECK THE SPECS THAT STEPHEN MAILED!
+
+POSSIBLE EXTENSIONS
+===================
+Consider adding anchor coordinates and bounding boxes to nodes,
+and adding a recursive set of methods to compute these. Then provide
+a routine to display the specification graphically (or produce PostScript?)
+

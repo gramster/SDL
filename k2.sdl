@@ -1,0 +1,915 @@
+0	SDLModule 33EF, 0, 0, 0, FFFFFFFF, 3, FFFFFFFF, 1
+9	SetScope 0, 33EF
+12	SDLTrans FFFFFFFF, FFFFFFFF, 0, FFFFFFFF, FFFFFFFF, FFFFFFFF, 0, 0
+21	Constant UNDEFINED
+23	SDLInit B, 1
+26	Constant UNDEFINED
+28	SDLInit 1FA, 1
+31	Constant UNDEFINED
+33	SDLInit 595, 1
+36	SDLStop
+37	SDLModule 414A, 1, 0, 1, FFFFFFFF, 6, FFFFFFFF, 2
+46	SetScope 0, 33EF
+49	SetScope 1, 414A
+52	SDLTrans FFFFFFFF, FFFFFFFF, 0, FFFFFFFF, FFFFFFFF, FFFFFFFF, 0, 0
+61	Constant UNDEFINED
+63	Constant 0
+65	SDLInit 8, 2
+68	Constant UNDEFINED
+70	Constant 0
+72	SDLInit FA, 2
+75	SDLStop
+76	SDLModule 4733, 2, 6, 1, 6, 9, 30, 3
+85	SetScope 0, 33EF
+88	SetScope 1, 414A
+91	SetScope 2, 4733
+94	SDLTrans FFFFFFFF, FFFFFFFF, 0, FFFFFFFF, FFFFFFFF, FFFFFFFF, 0, 4764
+103	LocalVar 5
+105	Constant 0
+107	SimpleAssign
+108	LocalVar 4
+110	Constant 0
+112	SimpleAssign
+113	LocalVar 6
+115	Constant 41200000
+117	SimpleAssign
+118	LocalVar 7
+120	Constant 41400000
+122	SimpleAssign
+123	LocalVar 8
+125	Constant UNDEFINED
+127	SimpleAssign
+
+File k  Line 69
+131	SDLNext 0
+133	SDLTrans 1, 0, UNDEFINED, 0, FFFFFFFF, 15, 6, 4AD7
+
+File k  Line 77
+145	Constant 1
+147	EndClause
+
+File k  Line 78
+151	Constant 3AE2
+153	Constant 593C
+155	Constant UNDEFINED
+157	SDLOutput 0, 1, 0
+161	SDLNext 1
+163	SDLTrans 2, 0, 0, FFFFFFFF, 0, 2F, 0, 4BF2
+
+File k  Line 82
+175	SDLInput 2, 0, 0
+179	EndClause
+180	Goto 0
+
+File k  Line 82
+
+File k  Line 84
+188	LocalVar 8
+190	GlobalTime
+191	SimpleAssign
+
+File k  Line 85
+195	LocalValue 8
+197	Constant 3AE2
+199	Constant 593C
+201	Constant UNDEFINED
+203	SDLOutput 1, 1, 1
+
+File k  Line 86
+210	GlobalTime
+211	LocalValue 6
+213	FAdd
+214	SetTimer F, 0
+217	SDLNext 3
+219	SDLTrans 2, 0, 0, FFFFFFFF, 0, 16, 0, 4E83
+
+File k  Line 88
+231	SDLInput 7, 0, 0
+235	EndClause
+236	Goto 0
+
+File k  Line 89
+241	GlobalTime
+242	LocalValue 7
+244	FAdd
+245	SetTimer E, 0
+248	SDLNext 2
+250	SDLTrans 4, 0, 0, FFFFFFFF, 0, F, 0, 5014
+
+File k  Line 93
+262	SDLInput E, 0, 0
+266	EndClause
+267	Goto 0
+
+File k  Line 93
+272	SDLNext 0
+274	SDLTrans 8, 0, 0, FFFFFFFF, 0, 12, 0, 50CB
+
+File k  Line 97
+286	SDLInput 7, 0, 0
+290	EndClause
+291	Goto 0
+
+File k  Line 98
+296	ResetTimer F, 0
+299	SDLNext 0
+301	SDLTrans 8, 0, 0, FFFFFFFF, 0, FFFFFFFF, 0, 517C
+
+File k  Line 100
+313	SDLInput F, 0, 0
+317	EndClause
+318	Goto 0
+
+File k  Line 100
+323	Goto FFFFFF74
+325	SDLModule 51CD, 2, 4, 1, 3, 9, 26, 3
+334	SetScope 0, 33EF
+337	SetScope 1, 414A
+340	SetScope 2, 51CD
+343	SDLTrans FFFFFFFF, FFFFFFFF, 0, FFFFFFFF, FFFFFFFF, FFFFFFFF, 0, 51FE
+352	LocalVar 5
+354	Constant 0
+356	SimpleAssign
+357	LocalVar 4
+359	Constant 0
+361	SimpleAssign
+362	LocalVar 6
+364	Constant UNDEFINED
+366	SimpleAssign
+
+File k  Line 104
+370	SDLNext 0
+372	SDLTrans 1, 0, 0, FFFFFFFF, 0, 42, 0, 5408
+
+File k  Line 110
+384	SDLInput 3, 0, 0
+388	EndClause
+389	Goto 0
+
+File k  Line 110
+
+File k  Line 112
+397	Constant 1
+399	Constant 0
+
+File k  Line 113
+404	SDLRange 7, 0, 1
+408	TestRange 11
+
+File k  Line 114
+413	Constant 3D00
+415	Constant 880B
+417	Constant UNDEFINED
+419	SDLOutput 4, 1, 0
+423	SDLNext 1
+425	Goto 14
+
+File k  Line 117
+430	Pop 2
+
+File k  Line 117
+435	Constant 3D00
+437	Constant 880B
+439	Constant UNDEFINED
+441	SDLOutput 5, 1, 0
+445	SDLNext 0
+447	SDLTrans 2, 0, 0, FFFFFFFF, 0, F, 0, 5688
+
+File k  Line 122
+459	SDLInput 3, 0, 0
+463	EndClause
+464	Goto 0
+
+File k  Line 122
+469	Goto FFFFFFB3
+471	SDLTrans 2, 0, 0, FFFFFFFF, 0, FFFFFFFF, 0, 56ED
+
+File k  Line 124
+483	SDLInput 8, 0, 0
+487	EndClause
+488	LocalVar 6
+490	ArgAssign 1
+492	Goto 0
+
+File k  Line 125
+497	Constant 1
+499	Constant 0
+
+File k  Line 126
+504	SDLRange 7, 0, 1
+508	TestRange 7
+
+File k  Line 126
+513	SDLNext 1
+515	Goto 14
+
+File k  Line 129
+520	Pop 2
+
+File k  Line 129
+525	Constant 3D00
+527	Constant 880B
+529	Constant UNDEFINED
+531	SDLOutput 5, 1, 0
+535	SDLNext 0
+537	SDLModule 58A7, 1, 0, 1, FFFFFFFF, 6, FFFFFFFF, 2
+546	SetScope 0, 33EF
+549	SetScope 1, 58A7
+552	SDLTrans FFFFFFFF, FFFFFFFF, 0, FFFFFFFF, FFFFFFFF, FFFFFFFF, 0, 0
+561	Constant UNDEFINED
+563	Constant 0
+565	SDLInit 1, 2
+568	SDLStop
+569	SDLModule 593C, 2, B, 1, A, 9, 4A, 3
+578	SetScope 0, 33EF
+581	SetScope 1, 58A7
+584	SetScope 2, 593C
+587	SDLTrans FFFFFFFF, FFFFFFFF, 0, FFFFFFFF, FFFFFFFF, FFFFFFFF, 0, 596D
+596	LocalVar 5
+598	Constant 0
+600	SimpleAssign
+601	LocalVar 4
+603	Constant 0
+605	SimpleAssign
+606	LocalVar 6
+608	Constant UNDEFINED
+610	SimpleAssign
+611	LocalVar 7
+613	Constant UNDEFINED
+615	SimpleAssign
+616	LocalVar 8
+618	Constant UNDEFINED
+620	SimpleAssign
+621	LocalVar 9
+623	Constant UNDEFINED
+625	SimpleAssign
+626	LocalVar A
+628	Constant UNDEFINED
+630	SimpleAssign
+631	LocalVar B
+633	Constant UNDEFINED
+635	SimpleAssign
+636	LocalVar C
+638	Constant UNDEFINED
+640	SimpleAssign
+641	LocalVar D
+643	Constant 3
+645	Float
+646	SimpleAssign
+
+File k  Line 136
+650	SDLNext 0
+652	SDLTrans 1, 0, 0, FFFFFFFF, 0, 33, 0, 6503
+
+File k  Line 162
+664	SDLInput 0, 0, 0
+668	EndClause
+669	Goto 0
+
+File k  Line 163
+674	LocalVar 8
+676	Constant 1
+678	SimpleAssign
+
+File k  Line 164
+682	LocalVar 7
+684	FConst 3F800000
+686	SimpleAssign
+
+File k  Line 165
+690	Constant 4049
+692	Constant 880B
+694	Constant UNDEFINED
+696	SDLOutput 9, 1, 0
+
+File k  Line 166
+703	GlobalTime
+704	LocalValue D
+706	FAdd
+707	SetTimer 10, 0
+710	SDLNext 1
+712	SDLTrans 1, 0, 0, FFFFFFFF, 0, 38, 0, 6798
+
+File k  Line 168
+724	SDLInput D, 0, 0
+728	EndClause
+729	Goto 0
+
+File k  Line 169
+734	LocalValue C
+736	Constant 1
+738	Equal
+739	Constant 0
+
+File k  Line 170
+744	SDLRange 7, 0, 1
+748	TestRange 7
+
+File k  Line 170
+753	SDLNext FFFFFFFF
+755	Goto 14
+
+File k  Line 173
+760	Pop 2
+
+File k  Line 173
+765	Constant 3BFF
+767	Constant 4733
+769	Constant UNDEFINED
+771	SDLOutput 7, 1, 0
+775	SDLNext FFFFFFFF
+777	SDLTrans 2, 0, 0, FFFFFFFF, 0, 46, 0, 6A48
+
+File k  Line 179
+789	SDLInput A, 0, 0
+793	EndClause
+794	Goto 0
+
+File k  Line 180
+799	LocalValue C
+801	Constant 1
+803	Equal
+804	Constant 0
+
+File k  Line 181
+809	SDLRange 7, 0, 1
+813	TestRange 7
+
+File k  Line 181
+818	SDLNext FFFFFFFF
+820	Goto 22
+
+File k  Line 184
+825	Pop 2
+
+File k  Line 184
+830	ResetTimer 10, 0
+
+File k  Line 185
+836	LocalVar B
+838	Constant 1
+840	SimpleAssign
+
+File k  Line 186
+844	Constant 3BFF
+846	Constant 4733
+848	Constant UNDEFINED
+850	SDLOutput 2, 1, 0
+854	SDLNext 2
+856	SDLTrans 2, 0, 0, FFFFFFFF, 0, 62, 0, 6D2D
+
+File k  Line 189
+868	SDLInput 10, 0, 0
+872	EndClause
+873	Goto 0
+
+File k  Line 190
+878	LocalValue 6
+880	Constant 4
+882	Less
+883	Constant 0
+
+File k  Line 191
+888	SDLRange 7, 0, 1
+892	TestRange 31
+
+File k  Line 192
+897	Constant 4049
+899	Constant 880B
+901	Constant UNDEFINED
+903	SDLOutput 9, 1, 0
+
+File k  Line 193
+910	LocalVar 6
+912	LocalValue 6
+914	Constant 1
+916	Add
+917	SimpleAssign
+
+File k  Line 194
+921	LocalVar 7
+923	LocalValue 7
+925	FConst 3F800000
+927	FAdd
+928	SimpleAssign
+
+File k  Line 195
+932	GlobalTime
+933	LocalValue D
+935	FAdd
+936	SetTimer 10, 0
+939	SDLNext FFFFFFFF
+941	Goto 14
+
+File k  Line 198
+946	Pop 2
+
+File k  Line 198
+951	Constant 3BFF
+953	Constant 4733
+955	Constant UNDEFINED
+957	SDLOutput 7, 1, 0
+961	SDLNext 0
+963	SDLTrans 2, 0, 0, FFFFFFFF, 0, 3E, 0, 722C
+
+File k  Line 201
+975	SDLInput D, 0, 0
+979	EndClause
+980	Goto 0
+
+File k  Line 202
+985	LocalValue C
+987	Constant 1
+989	Equal
+990	Constant 0
+
+File k  Line 203
+995	SDLRange 7, 0, 1
+999	TestRange 7
+
+File k  Line 203
+1004	SDLNext FFFFFFFF
+1006	Goto 1A
+
+File k  Line 206
+1011	Pop 2
+
+File k  Line 206
+1016	ResetTimer 10, 0
+
+File k  Line 207
+1022	Constant 3BFF
+1024	Constant 4733
+1026	Constant UNDEFINED
+1028	SDLOutput 7, 1, 0
+1032	SDLNext 0
+1034	SDLTrans 4, 0, 0, FFFFFFFF, 0, 3B, 0, 74E1
+
+File k  Line 212
+1046	SDLInput 1, 0, 0
+1050	EndClause
+1051	LocalVar 9
+1053	ArgAssign 1
+1055	Goto 0
+
+File k  Line 213
+1060	LocalValue B
+1062	LocalValue 9
+1064	Constant 4049
+1066	Constant 880B
+1068	Constant UNDEFINED
+1070	SDLOutput B, 1, 2
+
+File k  Line 214
+1077	LocalVar 6
+1079	Constant 1
+1081	SimpleAssign
+
+File k  Line 215
+1085	LocalVar 7
+1087	FConst 3F800000
+1089	SimpleAssign
+
+File k  Line 216
+1093	GlobalTime
+1094	LocalValue D
+1096	FAdd
+1097	SetTimer 11, 0
+1100	SDLNext 3
+1102	SDLTrans 4, 0, 0, FFFFFFFF, 0, 3E, 0, 7844
+
+File k  Line 218
+1114	SDLInput D, 0, 0
+1118	EndClause
+1119	Goto 0
+
+File k  Line 219
+1124	LocalValue C
+1126	Constant 1
+1128	Equal
+1129	Constant 0
+
+File k  Line 220
+1134	SDLRange 7, 0, 1
+1138	TestRange 7
+
+File k  Line 220
+1143	SDLNext FFFFFFFF
+1145	Goto 1A
+
+File k  Line 223
+1150	Pop 2
+
+File k  Line 223
+1155	ResetTimer 10, 0
+
+File k  Line 224
+1161	Constant 3BFF
+1163	Constant 4733
+1165	Constant UNDEFINED
+1167	SDLOutput 7, 1, 0
+1171	SDLNext 0
+1173	SDLTrans 8, 0, 0, FFFFFFFF, 0, BC, 0, 7B40
+
+File k  Line 230
+1185	SDLInput C, 0, 0
+1189	EndClause
+1190	LocalVar A
+1192	ArgAssign 1
+1194	Goto 0
+
+File k  Line 231
+1199	LocalValue C
+1201	Constant 1
+1203	Equal
+1204	Constant 0
+
+File k  Line 232
+1209	SDLRange 7, 0, 1
+1213	TestRange 7
+
+File k  Line 232
+1218	SDLNext FFFFFFFF
+1220	Goto 94
+
+File k  Line 235
+1225	Pop 2
+
+File k  Line 235
+1230	ResetTimer 11, 0
+
+File k  Line 236
+1236	LocalValue A
+1238	LocalValue B
+1240	Equal
+1241	Constant 0
+
+File k  Line 237
+1246	SDLRange 7, 0, 1
+1250	TestRange 12
+
+File k  Line 238
+1255	LocalVar B
+1257	LocalValue B
+1259	Constant 1
+1261	Add
+1262	Constant 2
+1264	Modulo
+1265	SimpleAssign
+1266	SDLNext 2
+1268	Goto 64
+
+File k  Line 241
+1273	Pop 2
+
+File k  Line 241
+
+File k  Line 242
+1281	LocalValue 6
+1283	Constant 4
+1285	Less
+1286	Constant 0
+
+File k  Line 243
+1291	SDLRange 7, 0, 1
+1295	TestRange 35
+
+File k  Line 244
+1300	LocalValue B
+1302	LocalValue 9
+1304	Constant 4049
+1306	Constant 880B
+1308	Constant UNDEFINED
+1310	SDLOutput B, 1, 2
+
+File k  Line 245
+1317	LocalVar 6
+1319	LocalValue 6
+1321	Constant 1
+1323	Add
+1324	SimpleAssign
+
+File k  Line 246
+1328	LocalVar 7
+1330	LocalValue 7
+1332	FConst 3F800000
+1334	FAdd
+1335	SimpleAssign
+
+File k  Line 247
+1339	GlobalTime
+1340	LocalValue D
+1342	FAdd
+1343	SetTimer 11, 0
+1346	SDLNext 3
+1348	Goto 14
+
+File k  Line 250
+1353	Pop 2
+
+File k  Line 250
+1358	Constant 3BFF
+1360	Constant 4733
+1362	Constant UNDEFINED
+1364	SDLOutput 7, 1, 0
+1368	SDLNext 0
+1370	SDLTrans 8, 0, 0, FFFFFFFF, 0, F, 0, 8557
+
+File k  Line 255
+1382	SDLInput 11, 0, 0
+1386	EndClause
+1387	Goto 0
+
+File k  Line 255
+1392	Goto FFFFFF8C
+1394	SDLTrans 8, 0, 0, FFFFFFFF, 0, FFFFFFFF, 0, 85BC
+
+File k  Line 257
+1406	SDLInput D, 0, 0
+1410	EndClause
+1411	Goto 0
+
+File k  Line 258
+1416	LocalValue C
+1418	Constant 1
+1420	Equal
+1421	Constant 0
+
+File k  Line 259
+1426	SDLRange 7, 0, 1
+1430	TestRange 7
+
+File k  Line 259
+1435	SDLNext FFFFFFFF
+1437	Goto 1A
+
+File k  Line 262
+1442	Pop 2
+
+File k  Line 262
+1447	ResetTimer 11, 0
+
+File k  Line 263
+1453	Constant 3BFF
+1455	Constant 4733
+1457	Constant UNDEFINED
+1459	SDLOutput 7, 1, 0
+1463	SDLNext 0
+1465	SDLModule 5F5C, 1, 0, 1, FFFFFFFF, 6, FFFFFFFF, 2
+1474	SetScope 0, 33EF
+1477	SetScope 1, 5F5C
+1480	SDLTrans FFFFFFFF, FFFFFFFF, 0, FFFFFFFF, FFFFFFFF, FFFFFFFF, 0, 0
+1489	Constant UNDEFINED
+1491	Constant 0
+1493	SDLInit 1, 2
+1496	SDLStop
+1497	SDLModule 880B, 2, 7, 1, 8, 9, 35, 3
+1506	SetScope 0, 33EF
+1509	SetScope 1, 5F5C
+1512	SetScope 2, 880B
+1515	SDLTrans FFFFFFFF, FFFFFFFF, 0, FFFFFFFF, FFFFFFFF, FFFFFFFF, 0, 883C
+1524	LocalVar 5
+1526	Constant 0
+1528	SimpleAssign
+1529	LocalVar 4
+1531	Constant 0
+1533	SimpleAssign
+1534	LocalVar 6
+1536	Constant UNDEFINED
+1538	SimpleAssign
+1539	LocalVar 7
+1541	Constant UNDEFINED
+1543	SimpleAssign
+1544	LocalVar 8
+1546	Constant UNDEFINED
+1548	SimpleAssign
+1549	LocalVar 9
+1551	Constant UNDEFINED
+1553	SimpleAssign
+
+File k  Line 270
+1557	SDLNext 0
+1559	SDLTrans 1, 0, 0, FFFFFFFF, 0, 38, 0, 911B
+
+File k  Line 293
+1571	SDLInput 9, 0, 0
+1575	EndClause
+1576	Goto 0
+
+File k  Line 294
+1581	LocalValue 9
+1583	Constant 1
+1585	Equal
+1586	Constant 0
+
+File k  Line 295
+1591	SDLRange 7, 0, 1
+1595	TestRange 7
+
+File k  Line 295
+1600	SDLNext FFFFFFFF
+1602	Goto 14
+
+File k  Line 298
+1607	Pop 2
+
+File k  Line 298
+1612	Constant 3E2B
+1614	Constant 51CD
+1616	Constant UNDEFINED
+1618	SDLOutput 3, 1, 0
+1622	SDLNext 1
+1624	SDLTrans 1, 0, 0, FFFFFFFF, 0, 19, 0, 9332
+
+File k  Line 301
+1636	SDLInput 5, 0, 0
+1640	EndClause
+1641	Goto 0
+
+File k  Line 302
+1646	Constant 3F2C
+1648	Constant 593C
+1650	Constant UNDEFINED
+1652	SDLOutput D, 1, 0
+1656	SDLNext 0
+1658	SDLTrans 2, 0, 0, FFFFFFFF, 0, 38, 0, 9449
+
+File k  Line 306
+1670	SDLInput 9, 0, 0
+1674	EndClause
+1675	Goto 0
+
+File k  Line 307
+1680	LocalValue 9
+1682	Constant 1
+1684	Equal
+1685	Constant 0
+
+File k  Line 308
+1690	SDLRange 7, 0, 1
+1694	TestRange 7
+
+File k  Line 308
+1699	SDLNext FFFFFFFF
+1701	Goto 14
+
+File k  Line 311
+1706	Pop 2
+
+File k  Line 311
+1711	Constant 3E2B
+1713	Constant 51CD
+1715	Constant UNDEFINED
+1717	SDLOutput 3, 1, 0
+1721	SDLNext 1
+1723	SDLTrans 2, 0, 0, FFFFFFFF, 0, 21, 0, 9660
+
+File k  Line 314
+1735	SDLInput 4, 0, 0
+1739	EndClause
+1740	Goto 0
+
+File k  Line 315
+1745	LocalVar 8
+1747	Constant 0
+1749	SimpleAssign
+
+File k  Line 316
+1753	Constant 3F2C
+1755	Constant 593C
+1757	Constant UNDEFINED
+1759	SDLOutput A, 1, 0
+1763	SDLNext 2
+1765	SDLTrans 2, 0, 0, FFFFFFFF, 0, 19, 0, 97A7
+
+File k  Line 318
+1777	SDLInput 5, 0, 0
+1781	EndClause
+1782	Goto 0
+
+File k  Line 319
+1787	Constant 3F2C
+1789	Constant 593C
+1791	Constant UNDEFINED
+1793	SDLOutput D, 1, 0
+1797	SDLNext 0
+1799	SDLTrans 4, 0, 0, FFFFFFFF, 0, 90, 0, 98BE
+
+File k  Line 323
+1811	SDLInput B, 0, 0
+1815	EndClause
+1816	LocalVar 7
+1818	ArgAssign 1
+1820	LocalVar 6
+1822	ArgAssign 1
+1824	Goto 0
+
+File k  Line 324
+1829	LocalValue 9
+1831	Constant 1
+1833	Equal
+1834	Constant 0
+
+File k  Line 325
+1839	SDLRange 7, 0, 1
+1843	TestRange 7
+
+File k  Line 325
+1848	SDLNext FFFFFFFF
+1850	Goto 64
+
+File k  Line 328
+1855	Pop 2
+
+File k  Line 328
+1860	LocalValue 7
+1862	LocalValue 8
+1864	Constant 1
+1866	Add
+1867	Constant 2
+1869	Modulo
+1870	Equal
+1871	Constant 0
+
+File k  Line 329
+1876	SDLRange 7, 0, 1
+1880	TestRange 30
+
+File k  Line 330
+1885	LocalValue 6
+1887	Constant 3E2B
+1889	Constant 51CD
+1891	Constant UNDEFINED
+1893	SDLOutput 8, 1, 1
+
+File k  Line 331
+1900	LocalValue 7
+1902	Constant 3F2C
+1904	Constant 593C
+1906	Constant UNDEFINED
+1908	SDLOutput C, 1, 1
+
+File k  Line 332
+1915	LocalVar 8
+1917	LocalValue 8
+1919	Constant 1
+1921	Add
+1922	Constant 2
+1924	Modulo
+1925	SimpleAssign
+1926	SDLNext FFFFFFFF
+1928	Goto 16
+
+File k  Line 335
+1933	Pop 2
+
+File k  Line 335
+1938	LocalValue 7
+1940	Constant 3F2C
+1942	Constant 593C
+1944	Constant UNDEFINED
+1946	SDLOutput C, 1, 1
+1950	SDLNext FFFFFFFF
+1952	SDLTrans 4, 0, 0, FFFFFFFF, 0, 38, 0, A007
+
+File k  Line 339
+1964	SDLInput 9, 0, 0
+1968	EndClause
+1969	Goto 0
+
+File k  Line 340
+1974	LocalValue 9
+1976	Constant 1
+1978	Equal
+1979	Constant 0
+
+File k  Line 341
+1984	SDLRange 7, 0, 1
+1988	TestRange 7
+
+File k  Line 341
+1993	SDLNext FFFFFFFF
+1995	Goto 14
+
+File k  Line 344
+2000	Pop 2
+
+File k  Line 344
+2005	Constant 3E2B
+2007	Constant 51CD
+2009	Constant UNDEFINED
+2011	SDLOutput 3, 1, 0
+2015	SDLNext 1
+2017	SDLTrans 4, 0, 0, FFFFFFFF, 0, FFFFFFFF, 0, A21E
+
+File k  Line 347
+2029	SDLInput 5, 0, 0
+2033	EndClause
+2034	Goto 0
+
+File k  Line 348
+2039	Constant 3F2C
+2041	Constant 593C
+2043	Constant UNDEFINED
+2045	SDLOutput D, 1, 0
+2049	SDLNext 0

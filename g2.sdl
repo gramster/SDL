@@ -1,0 +1,46 @@
+BLOCK SYSTEM daemon_game blockgame;
+	SIGNALROUTE sr2
+		FROM there TO here
+		WITH probe;
+	CONNECT c5 AND sr2;
+	PROCESS p4 REFERENCED;
+ENDBLOCK SYSTEM daemon_game blockgame;
+
+PROCESS SYSTEM daemon_game/BLOCK blockgame p4;
+	PROCEDURE fact;
+	FPAR IN n integer, IN/OUT res integer;
+		PROCEDURE in_fact;
+			PROCEDURE in_in_fact REFERENCED;
+		START;
+			groovy_label:;
+			return;
+		ENDPROCEDURE;
+	START;
+		more_labels:;
+		stop;
+	ENDPROCEDURE;
+START;
+	Hello:;
+		stop;
+	STATE x;
+		SAVE a, b, c;
+		INPUT *;
+			Goodbye:;
+		nextstate -;
+	ENDSTATE;
+	STATE y;
+		INPUT a(b,c), d;
+			adios:;
+		nextstate -;
+	ENDSTATE;
+	
+ENDPROCESS;
+
+PROCEDURE SYSTEM daemon_game/BLOCK blockgame/PROCESS p4/
+			PROCEDURE fact/PROCEDURE in_fact in_in_fact;
+FPAR IN like integer, IN/OUT wow integer;
+START;
+	oh_no:;
+	stop;
+ENDPROCEDURE;
+

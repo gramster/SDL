@@ -1,0 +1,278 @@
+/* Hi
+Sorry to be the bearer of bad news, but now when I pass a struct made
+up of 2 fields, [ie. passing data (made up of length and blockno) via p_data.]
+the 2 fields get swopped. I haven't tried using 2 separate fields.
+Here is the code*/
+/*
+  Author : M. WEBER
+  Date : 9 Sept. 1994
+  Trivial File Transport Protocol
+*/
+
+
+system tftp;
+
+	newtype Req_info 
+		struct length Integer;
+		opcode Integer;
+	endnewtype Req_info
+ 
+	newtype Data
+		struct length Integer;
+		blockno Integer;
+	endnewtype Data
+		
+
+	signal
+		u_write_req(Integer), u_read_req, u_read_ack,u_write_ack,
+	        p_ack(Integer), p_data(Data), p_req(Req_info);
+
+	channel Initiating_Ch
+		from User to Initiator 
+			with u_read_req, u_write_req;
+		from Initiator to User
+			with u_read_ack, u_write_ack; 
+	endchannel Initiating_Ch;
+
+   	channel Protocol_Ch
+		from Initiator to Responder
+			with p_req, p_data, p_ack;
+		from Responder to Initiator
+                        with p_data, p_ack;
+	endchannel Protocol_Ch;
+ 
+	channel Responding_Ch 
+                from Responder to User 
+			with u_read_ack, u_write_ack, u_read_req, u_write_req;
+	endchannel Responding_Ch;
+
+	/* User Block */
+
+	block User;
+		process ReqControl referenced;
+		signalroute ReqComm
+			from ReqControl to env
+				with u_write_req, u_read_req;
+			from env to ReqControl
+				with u_read_ack, u_write_ack;
+		connect Initiating_Ch and ReqComm;
+                process ProvControl referenced;
+		signalroute ProvComm
+			from env to ProvControl
+				with u_read_ack, u_write_ack, u_read_req,
+				 u_write_req;
+		connect Responding_Ch and ProvComm; 
+	endblock User;
+
+	/* Provider Block 
+
+	block Provider;
+		process ProvControl referenced;
+		signalroute ProvComm
+			from env to ProvControl
+				with u_read_ack, u_write_ack, u_read_req,
+				 u_write_req;
+		connect Responding_Ch and ProvComm;
+	endblock Provider;*/
+
+	/* Initiator Block */
+
+	block Initiator;
+		process InitControl referenced;
+		signalroute ProtComm
+			from InitControl to env
+				with p_data, p_ack, p_req;
+			from env to InitControl
+				with p_data, p_ack;
+            	signalroute UComm
+			from InitControl to env
+				with u_read_ack, u_write_ack;
+			from env to InitControl
+  				with u_read_req, u_write_req;
+		connect Protocol_Ch and ProtComm;
+		connect Initiating_Ch and UComm;
+	endblock Initiator;
+
+	/* Responding Block */
+
+	block Responder;
+		process RespControl referenced;
+		signalroute ProtComm
+			from RespControl to env
+				with p_data, p_ack;
+			from env to RespControl
+				with p_data, p_ack, p_req;
+		signalroute ProvComm
+			from RespControl to env
+				with u_read_ack, u_write_ack, u_read_req,
+				 u_write_req;
+		connect Protocol_Ch and ProtComm;
+		connect Responding_Ch and ProvComm;
+	endblock Responder;
+endsystem tftp;
+
+/* This  block has a two controlling processes */
+process system tftp/block User ReqControl(1,1);
+	dcl length Integer;
+        start;
+        	nextstate send_rreq; 
+	state send_rreq;
+		provided true;
+			output u_read_req;
+			nextstate req_wait;
+   	state send_wreq;
+		provided true;
+			task length := 400;
+			output u_write_req(length);
+			nextstate req_wait;
+	state req_wait;
+		input u_write_ack;
+			nextstate send_rreq;
+                input u_read_ack;
+		        nextstate send_wreq;
+		
+endprocess;
+
+process system tftp/block User ProvControl(1,1);
+	start;
+		nextstate prov_idle;
+        state prov_idle;
+		input u_read_req;
+			nextstate prov_wait;
+		input u_write_req;
+			nextstate prov_wait;
+	state prov_wait;
+		input u_read_ack;
+			nextstate prov_idle;
+		input u_write_ack;
+			nextstate prov_idle;
+endprocess;
+
+process system tftp/block Initiator InitControl(1,1);
+	dcl sn Integer,
+            data Data,
+	    seq Integer,
+	    req Req_info,
+            file_len Integer,
+            length Integer;
+/*	    tm Duration := 10;
+	timer WTimeout; 
+	timer RTimeout; */
+	start;
+		nextstate init_idle;
+	state init_idle;
+		input u_read_req;
+			task sn := 0;
+			task req!opcode := 1;
+                        task req!length := 7; /* Will be set by the responder*/
+			output p_req(req);
+			/* set (now + tm, Timeout); */
+   			task sn := sn + 1;
+			nextstate init_wait;
+		input u_write_req(file_len);
+			task sn := 0;
+			task req!opcode := 2;
+			task req!length := file_len;
+			/*task length := file_len;*/
+			output p_req(req);
+			/* set (now + tm, Timeout); */
+			nextstate init_wait;
+state init_wait;
+		input p_data(data);
+			decision data!blockno = sn;
+		 	  (false) : nextstate -;
+			  (true)  : decision data!length <= 512;
+                                      (true)  : output p_ack(sn) via ProtComm; 
+   					        output u_read_ack;
+				    	        nextstate init_idle;
+				      (false) : output p_ack(sn) via ProtComm;
+						task sn := sn + 1;
+						nextstate -;
+				    enddecision; 
+			enddecision;
+		input p_ack(seq);
+			decision seq = sn;
+			  (true)  : task sn := sn + 1;
+				    decision file_len <= 512; /*last packet*/
+				      (false) : task file_len := file_len - 512;
+						task data!length := file_len;
+						task data!blockno := sn; 
+					        output p_data(data) 
+							via ProtComm;
+				                nextstate -;
+				      (true)  : task data!blockno := sn; 
+						task data!length := file_len;
+						output p_data(data)
+							via ProtComm;
+						output u_write_ack;
+					        nextstate init_idle; 
+				    enddecision;
+			  (false) : nextstate -;
+			enddecision;			    
+		/* input Timeout;
+			decision sn = 0;
+			  (true)  : output p_req(req);
+				    set (now + tm, Timeout);
+				    nextstate -;
+			  (false) : output p_ack(sn);
+				    set (now + tm, Timeout);
+				    nextstate -;
+			enddecision;*/
+endprocess;
+
+process system tftp/block Responder RespControl(1,1);
+	dcl sn Integer,
+	    length Integer,
+            req Req_info,
+            data Data,
+	    seq Integer;
+/*    tm Duration := 10;
+	timer Timeout;*/
+	start;
+		nextstate resp_idle;
+
+	state resp_idle;
+              	input p_req(req);
+			task sn := 0;
+			decision req!opcode = 1; /* read request */
+			  (true)  : task sn := sn + 1; 
+				    task data!length := 530;
+				    task length := 530;
+				    task data!blockno := sn;
+                                    output p_data(data) via ProtComm;
+				    output u_read_req;
+				    nextstate resp_wait;
+                          (false) : output p_ack(sn) via ProtComm;
+				    output u_write_req(req!length);
+				    task sn := sn + 1;
+				    nextstate resp_wait;
+			enddecision;
+	state resp_wait;
+                input p_data(data);
+                        decision data!blockno = sn;
+                          (false) : nextstate -;
+                          (true)  : decision length <= 512;
+				      (true)  : output u_write_ack;
+						nextstate resp_idle;
+				      (false) : output p_ack(sn) via ProtComm;
+                                                task sn := sn + 1;
+                                                nextstate -;
+				    enddecision;
+                        enddecision;
+                input p_ack(seq);
+                        decision seq = sn;
+                          (true)  : decision length <= 512; /*last packet*/
+                                      (false) : task data!length:= length - 512;
+						task length := length - 512;
+						task sn := sn + 1;
+						task data!blockno := sn;
+                                                output p_data(data)
+							via ProtComm;
+                                                nextstate -;
+                                      (true)  : output u_read_ack;
+                                                nextstate resp_idle;
+                                    enddecision;
+                          (false) : nextstate -;
+                        enddecision;
+endprocess;
+

@@ -1,0 +1,55 @@
+SYSTEM daemon_game;
+
+/* This is a game */
+
+SIGNAL newgame, probe, result, endgame, gameID, win, lose, score(integer);
+SIGNALLIST some = win, lose, score;
+SIGNALLIST more = gameid, (some);
+
+/*SIGNAL newgame, probe, result, endgame, gameID, win, lose, score,
+	subscr, endsubscr, bump;
+*/
+
+CHANNEL c1
+	FROM ENV TO blockgame
+	WITH newgame, probe, result, endgame;
+	FROM blockgame TO ENV
+	WITH (more);
+ENDCHANNEL c1;
+
+CHANNEL C3 FROM blockgame TO blockdaemon
+	WITH subscr, endsubscr;
+ENDCHANNEL C3;
+
+CHANNEL C4 FROM blockdaemon TO blockgame
+	WITH Bump;
+ENDCHANNEL C4;
+
+BLOCK Blockgame REFERENCED;
+
+BLOCK blockdaemon;
+	SIGNAL newgame, probe, result, endgame, gameID, win, lose, score(integer);
+	SIGNALLIST some = win, lose, score;
+	SIGNALLIST more = gameid, (some);
+	CONNECT c4 AND sr1;
+	PROCESS p1 REFERENCED;
+	PROCESS p2(0,4);
+	FPAR a, b, c, c integer;
+	SIGNALSET newgame, (more);
+		DCL REVEALED nisof, sam INTEGER;
+		DCL EXPORTED gram INTEGER;
+		SIGNAL hi, lo;
+		SIGNALLIST some2 = hi, lo;
+		VIEWED BLOCK Blockgame x, y, z boolean;
+		IMPORTED a, b, c integer;
+		TIMER t1(integer), t2(BLOCK Blockgame flag, boolean);
+	START;
+		checkitout:;
+			task x := 2*3+(5+a!b(c));
+			stop;
+	ENDPROCESS p2;
+
+ENDBLOCK;
+
+ENDSYSTEM daemon_game;
+

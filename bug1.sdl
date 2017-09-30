@@ -1,0 +1,769 @@
+/* I have modelled for Initiator on one side and Responder on other, not
+   both having different requests at same time */
+
+/* compiler doesn't support unbounded number of processes to be created
+   Therefore, although not specified in protocol, have restricted number
+/* have modelled the TID of 69 by connecting the request only to the server
+   The server then assigns creates a process and that process PId is used
+   as the TID */
+/* problem with integer literals passed as parameters */
+/* Parameters to be changed:
+   Length of file sent: change total_len in send_file in Responder
+   (Unfortunalely no SYNONYM) */
+SYSTEM tftp;
+
+
+/* syntypes and strings are not currently supported in the compiler,
+   so integer types will be used */ 
+/* Operations are 1: Read Requeat (RRQ)
+		  2: Write Request (WRQ)
+		  3: Data (DATA)
+		  4: Acknowledgment (ACK)
+		  5: Error (ERROR)  */
+
+NEWTYPE Packet_req
+  STRUCT opcode Integer;
+	 filename Integer;
+	 space1 Integer;
+	 Mode Integer;
+	 space2 Integer;
+ENDNEWTYPE
+
+NEWTYPE Packet_data
+  STRUCT opcode Integer;
+	 blocknum Integer;
+	 data Integer;
+ENDNEWTYPE
+
+NEWTYPE Packet_ack
+  STRUCT opcode Integer;
+	 blocknum Integer;
+ENDNEWTYPE
+
+NEWTYPE Packet_error
+  STRUCT opcode Integer;
+	 errorcode Integer;
+	 errmsg Integer;
+	 space2 Integer;
+ENDNEWTYPE
+
+/* A separate signal is supplied for every different type of packet.
+   The reason for this is that every packet type is of a different structure,
+   and I do not know how to support this variant type in SDL */
+   
+SIGNAL i_pkt_send_req(Packet_req,PId,PId,Integer),
+       i_pkt_send_data(Packet_data,PId,PId,Integer),
+       i_pkt_send_ack(Packet_ack,PId,PId,Integer),
+       i_pkt_send_error(Packet_error,PId,PId,Integer),
+
+       i_pkt_receive_req(Packet_req,PId,PId,Integer),
+       i_pkt_receive_data(Packet_data,PId,PId,Integer),
+       i_pkt_receive_ack(Packet_ack,PId,PId,Integer),
+       i_pkt_receive_error(Packet_error,PId,PId,Integer),
+
+       r_pkt_send_req(Packet_req,PId,PId,Integer),
+       r_pkt_send_data(Packet_data,PId,PId,Integer),
+       r_pkt_send_ack(Packet_ack,PId,PId,Integer),
+       r_pkt_send_error(Packet_error,PId,PId,Integer),
+
+       r_pkt_receive_req(Packet_req,PId,PId,Integer),
+       r_pkt_receive_data(Packet_data,PId,PId,Integer),
+       r_pkt_receive_ack(Packet_ack,PId,PId,Integer),
+       r_pkt_receive_error(Packet_error,PId,PId,Integer),
+
+/* the signals are for the initiator and receiver (i and r).  They
+   either send a packet to the network or receive one from it.
+   The PId and Integer is to simulate the Datagram header which contains
+   the source and destination ports and the length of the packet
+   - the first PId is the source */
+       fail(PId),success(PId),ack_end;
+/* these signals are for the initiator block where fail and success indicate
+   whether the whole operation was a success.  
+   ack_end acknowledges the fail or success so that the process
+   doing the transferring may terminate.   
+   A PId of null is used to denote the special sender port of 69 which
+   is for beginning connection */
+
+CHANNEL local_Ch
+  from Initiator to Network
+	  with i_pkt_send_req,i_pkt_send_data,i_pkt_send_ack,i_pkt_send_error;
+  from Network to Initiator
+	  with i_pkt_receive_data, i_pkt_receive_ack,i_pkt_receive_error;
+ENDCHANNEL local_Ch;
+
+CHANNEL remote_Ch
+  from Network to Responder
+	  with r_pkt_receive_req,r_pkt_receive_data,
+	       r_pkt_receive_ack,r_pkt_receive_error;
+  from Responder to Network
+	  with r_pkt_send_data,r_pkt_send_ack,r_pkt_send_error;
+ENDCHANNEL remote_Ch;
+
+
+BLOCK Initiator;
+  process User referenced;
+  process Receive_file referenced;
+  process Send_file referenced;
+  signalroute Comm1
+    from User to Receive_file
+	  with ack_end;
+    from Receive_file to User
+	  with fail,success;
+  signalroute Comm2
+    from User to Send_file
+	  with ack_end;
+    from Send_file to User
+	  with fail,success;
+  signalroute Comm3
+    from Receive_file to env
+	  with i_pkt_send_req,i_pkt_send_data,i_pkt_send_ack,i_pkt_send_error;
+    from env to Receive_file
+	  with i_pkt_receive_data, i_pkt_receive_error;
+  signalroute Comm4
+    from Send_file to env
+	  with i_pkt_send_req,i_pkt_send_data,i_pkt_send_ack,i_pkt_send_error;
+    from env to Send_file
+	  with i_pkt_receive_ack,i_pkt_receive_error;
+  connect local_Ch and Comm3;
+  connect local_Ch and Comm4;
+
+ENDBLOCK Initiator;
+
+
+
+BLOCK Responder;
+  process Server referenced;
+  process Receive_file referenced;
+  process Send_file referenced;
+  signalroute Comm1
+    from Receive_file to Server
+	  with success,fail;
+    from Server to Receive_file
+	  with ack_end;
+  signalroute Comm2
+    from Send_file to Server
+	  with success,fail;
+    from Server to Send_file
+	  with ack_end;
+  signalroute Comm3
+    from Receive_file to env
+	  with r_pkt_send_ack,r_pkt_send_error;
+    from env to Receive_file
+	  with r_pkt_receive_data, r_pkt_receive_ack,r_pkt_receive_error;
+  signalroute Comm4
+    from Send_file to env
+	  with r_pkt_send_data,r_pkt_send_ack,r_pkt_send_error;
+    from env to Send_file
+	  with r_pkt_receive_ack,r_pkt_receive_error;
+  signalroute Comm5
+    from env to Server
+	  with r_pkt_receive_req;
+  
+  connect remote_Ch and Comm3;
+  connect remote_Ch and Comm4;
+  connect remote_Ch and Comm5;
+
+ENDBLOCK Responder;
+
+
+BLOCK Network;
+  process Medium referenced;
+  signalroute Comm1
+    from env to Medium
+	  with i_pkt_send_req,i_pkt_send_data,i_pkt_send_ack,i_pkt_send_error;
+    from Medium to env
+	  with i_pkt_receive_data, i_pkt_receive_ack,i_pkt_receive_error;
+  signalroute Comm2
+    from Medium to env
+	  with r_pkt_receive_req,r_pkt_receive_data,
+	       r_pkt_receive_ack,r_pkt_receive_error;
+    from env to Medium
+	  with r_pkt_send_req,r_pkt_send_data,r_pkt_send_ack,r_pkt_send_error;
+  connect local_Ch and Comm1;
+  connect remote_Ch and Comm2;
+ENDBLOCK Network;
+
+ENDSYSTEM tftp;
+
+/*   THE INITIATOR'S PROCESSES */
+/*  ------------------------------- */
+
+PROCESS system tftp/block Initiator User(1,1);
+   dcl total_len Integer := 2000;
+   dcl procid PId;
+
+   start;
+	CREATE Send_file(total_len);
+	nextstate rrq;
+   state rrq;
+	input fail(procid);
+	  nextstate -;
+	input success(procid);
+	  nextstate -;
+ENDPROCESS;
+
+
+PROCESS system tfpt/block Initiator Send_file(0,8);
+FPAR total_len Integer;  /* the length of the file to send */ 
+   dcl full_pkt Integer := 512;
+   dcl zero Integer:= 0;  /* synonyms not supported in compiler,
+			      and 0 giving problems */
+   dcl NULL PId := 0;
+   dcl req_pkt Packet_req;
+   dcl data_pkt Packet_data;
+   dcl ack_pkt Packet_ack;
+   dcl error_pkt Packet_error;
+   dcl source,dest PId;
+   dcl len Integer; /* the length of the data, excluding headers */
+   dcl tm Duration := 10;
+   dcl curr_blocknum Integer := 0;
+   timer Timeout;
+   start;
+	/* initialise opcodes */
+	task req_pkt!opcode := 2;   /* sets the packet to be a WRQ */
+	task data_pkt!opcode := 3;
+	task ack_pkt!opcode := 4;
+	task error_pkt!opcode := 5;
+	output i_pkt_send_req(req_pkt,SELF,NULL,zero);/* TID not allocated */
+	nextstate wait;
+   state wait;
+	input i_pkt_receive_error(error_pkt,source,dest,len);
+	  decision dest /= SELF;
+	  (true) : /* sent to wrong place, ignore since sender has left */
+		   nextstate -;
+	  (false) : /* connection not accepted */
+	  	    output fail(SELF);    /* send fail to parent */
+	  	    set(NOW+tm,Timeout);
+	  	    nextstate final;
+	  enddecision;
+
+	input i_pkt_receive_ack(ack_pkt,source,dest,len);
+	  decision dest /= SELF;
+	  (true) : /* sent to wrong place */
+		    output i_pkt_send_error(error_pkt,SELF,source,zero);
+		    nextstate -;
+	  (false): /* got the ack packet go ahead */
+	        decision ack_pkt!blocknum = curr_blocknum;
+		(true) : /* all is ok with block number */
+		     /* prepare data packet */
+		     task curr_blocknum := curr_blocknum + 1;
+		     task data_pkt!opcode := curr_blocknum;
+		     decision total_len < full_pkt;
+		     (false) : /* more packets to send */
+	                 output i_pkt_send_data(data_pkt,SELF,source,full_pkt);
+			 task total_len := total_len - full_pkt;
+	                 nextstate connected;
+		     (true): /* this is the last packet */
+	                 output i_pkt_send_data(data_pkt,SELF,source,total_len);
+			 task total_len := 0;
+			 nextstate connected;
+	             enddecision;
+		(false) :/* all in not ok with block number */
+		     output i_pkt_send_error(error_pkt,SELF,source,zero);
+		     output fail(SELF);  /* send fail to parent */
+		     set(NOW+tm,Timeout);
+		     nextstate final;
+		enddecision;
+	  enddecision;
+
+   state connected;
+	input i_pkt_receive_error(error_pkt,source,dest,len);
+	  decision dest /= SELF;
+	  (true) : /* sent to wrong place, ignore since sender has left */
+		   nextstate -;
+	  (false) : /* problem  */
+	  	    output fail(SELF);    /* send fail to parent */
+	  	    set(NOW+tm,Timeout);
+	  	    nextstate final;
+	  enddecision;
+
+        input i_pkt_receive_ack(ack_pkt,source,dest,len);
+	decision dest /= SELF;
+	(true) : /* sent to wrong place */
+		 output i_pkt_send_error(error_pkt,SELF,source,zero);
+		 nextstate -;
+	(false): /* got the acknowledgment */
+	        decision ack_pkt!blocknum = curr_blocknum;
+		(true) : /* all is ok with block number */
+		   /* see if it was final packet */
+		   decision total_len = 0;
+		   (true) : /* all been sent */
+		     output success(SELF);
+		     set(NOW+tm,Timeout);
+		     nextstate final;
+		   (false):
+		     /* prepare data packet */
+		     task curr_blocknum := curr_blocknum + 1;
+		     task data_pkt!opcode := curr_blocknum;
+		     decision total_len < full_pkt;
+		     (false) : /* more packets to send */
+	                 output i_pkt_send_data(data_pkt,SELF,source,full_pkt);
+			 task total_len := total_len - full_pkt;
+	                 nextstate -;
+		     (true): /* this is the last packet */
+	                 output i_pkt_send_data(data_pkt,SELF,source,total_len);
+			 task total_len := 0;
+			 nextstate -;
+	             enddecision;
+		  enddecision;
+		(false) : decision ack_pkt!blocknum = curr_blocknum - 1;
+		     (true) : /* ack of previous transmission, so resend */
+	                 output i_pkt_send_data(data_pkt,SELF,source,total_len);
+			 nextstate -;
+		     (false) : /* problem */
+		         output i_pkt_send_error(error_pkt,SELF,source,zero);
+		         output fail(SELF);  /* send fail to parent */
+		         set(NOW+tm,Timeout);
+		         nextstate final;
+		     enddecision;
+		enddecision;
+	 enddecision;
+
+
+/*  ?????????????????????????????????????????? */
+	input Timeout;
+		 output success(SELF); /* send success to parent */
+		 set(NOW+tm,Timeout);
+		 nextstate final;
+    state final;
+       input Timeout;
+	 stop;     /* the process wouldn't acknowledge, so die */
+       input ack_end;
+	 stop;    /* the process acknowledges, so die */
+
+ENDPROCESS;
+
+
+  
+PROCESS system tfpt/block Initiator Receive_file(0,8);
+   dcl full_pkt Integer := 512;
+   dcl zero Integer:= 0;  /* synonyms not supported in compiler,
+			      and 0 giving problems */
+   dcl NULL PId := 0;
+   dcl req_pkt Packet_req;
+   dcl data_pkt Packet_data;
+   dcl ack_pkt Packet_ack;
+   dcl error_pkt Packet_error;
+   dcl source,dest PId;
+   dcl len Integer; /* the length of the data, excluding headers */
+   dcl tm Duration := 10;
+   dcl curr_blocknum Integer := 1;
+   timer Timeout;
+   start;
+	/* initialise opcodes */
+	task req_pkt!opcode := 1;   /* sets the packet to be a RRQ */
+	task data_pkt!opcode := 3;
+	task ack_pkt!opcode := 4;
+	task error_pkt!opcode := 5;
+	output i_pkt_send_req(req_pkt,SELF,NULL,zero);/* TID not allocated */
+	nextstate wait;
+   state wait;
+	input i_pkt_receive_error(error_pkt,source,dest,len);
+	  decision dest /= SELF;
+	  (true) : /* sent to wrong place, ignore since sender has left */
+		   nextstate -;
+	  (false) : /* connection not accepted */
+	  	    output fail(SELF);    /* send fail to parent */
+	  	    set(NOW+tm,Timeout);
+	  	    nextstate final;
+	  enddecision;
+
+	input i_pkt_receive_data(data_pkt,source,dest,len);
+	  decision dest /= SELF;
+	  (true) : /* sent to wrong place */
+		    output i_pkt_send_error(error_pkt,SELF,source,zero);
+		    nextstate -;
+	  (false): /* got the packet == first packet of data, go ahead */
+		    decision data_pkt!blocknum = curr_blocknum;
+		    (true) : /* all is ok with block number */
+			     task ack_pkt!opcode := curr_blocknum;
+	                     output i_pkt_send_ack(ack_pkt,SELF,source,zero);
+		             decision len = full_pkt;
+		    		(true) : /* more packets to come */
+	           	          	nextstate connected;
+		    		(false): /* this is the last packet */
+				        set(NOW+tm,Timeout);
+			     		nextstate last_pkt;
+	          	     enddecision;
+		    (false) :/* all in not ok with block number */
+			    output i_pkt_send_error(error_pkt,SELF,source,zero);
+			    output fail(SELF);  /* send fail to parent */
+			    set(NOW+tm,Timeout);
+			    nextstate final;
+		    enddecision;
+	  enddecision;
+   state connected;
+	input i_pkt_receive_error(error_pkt,source,dest,len);
+	  decision dest /= SELF;
+	  (true) : /* sent to wrong place, ignore since sender has left */
+		   nextstate -;
+	  (false) : /* problem  */
+	  	    output fail(SELF);    /* send fail to parent */
+	  	    set(NOW+tm,Timeout);
+	  	    nextstate final;
+	  enddecision;
+
+        input i_pkt_receive_data(data_pkt,source,dest,len);
+	decision dest /= SELF;
+	(true) : /* sent to wrong place */
+		 output i_pkt_send_error(error_pkt,SELF,source,zero);
+		 nextstate -;
+	(false): /* got the packet */
+		 decision data_pkt!blocknum = curr_blocknum + 1;
+		 (true) : /* all is ok with block number */
+			 task curr_blocknum := curr_blocknum + 1;
+			 task ack_pkt!blocknum := curr_blocknum;
+	                 output i_pkt_send_ack(ack_pkt,SELF,source,zero);
+		         decision len = full_pkt;
+		    	 (true) : /* more packets to come */
+	           	       	nextstate -;
+		    	 (false): /* this is the last packet */
+				set(NOW+tm,Timeout);
+			     	nextstate last_pkt;
+	          	 enddecision;
+                (false) :/* see if it was previous block number */
+			 decision data_pkt!blocknum = curr_blocknum;
+			 (true) : /* retransmit last packet */ 
+			       output i_pkt_send_ack(ack_pkt,SELF,source,zero);
+			       nextstate -;
+			 (false) : /* shouldn't be, so error */ 
+			    output i_pkt_send_error(error_pkt,SELF,source,zero);
+			    output fail(SELF);  /* send fail to parent */
+			    set(NOW+tm,Timeout);
+			    nextstate final;
+			 enddecision;
+		enddecision;
+	  enddecision;
+
+
+
+   state last_pkt;
+	/* wait for a certain time, if get back same packet, retransmit
+	   ack and wait again, then stop */ 
+	input i_pkt_receive_error(error_pkt,source,dest,len);
+	  decision dest /= SELF;
+	  (true) : /* sent to wrong place, ignore since sender has left */
+		   nextstate -;
+	  (false) : /* problem  */
+	  	    output fail(SELF);    /* send fail to parent */
+	  	    set(NOW+tm,Timeout);
+	  	    nextstate final;
+	  enddecision;
+
+	input i_pkt_receive_data(data_pkt,source,dest,len);
+	decision dest /= SELF;
+	(true) : /* sent to wrong place */
+		 output i_pkt_send_error(error_pkt,SELF,source,zero);
+		 nextstate -;
+	(false): /* check if previous block number */
+                 decision data_pkt!blocknum = curr_blocknum;	
+	         (true): /* got the same packet,resend ack */
+		 	output i_pkt_send_ack(ack_pkt,SELF,source,zero);
+		 	reset(Timeout);   /* reset time */ 
+		 	set(NOW+tm,Timeout);
+		 	nextstate -;
+		 (false): /* error in packet, so error. Even though */
+			  /* all transmission is finished, an error here */
+			  /* means that something has gone wrong, so abort */
+			  output i_pkt_send_error(error_pkt,SELF,source,zero);
+			  output fail(SELF); /* send fail to parent */
+			  set(NOW+tm,Timeout);
+			  nextstate final;
+		 enddecision;
+	enddecision;
+
+	input Timeout;
+		 output success(SELF); /* send success to parent */
+		 set(NOW+tm,Timeout);
+		 nextstate final;
+    state final;
+       input Timeout;
+	 stop;     /* the process wouldn't acknowledge, so die */
+       input ack_end;
+	 stop;    /* the process acknowledges, so die */
+
+ENDPROCESS;
+
+
+
+/*   THE RESPONDER'S PROCESSES */
+/*  ------------------------------- */
+
+PROCESS system tftp/block Responder Server(1,1);
+  dcl total_len Integer := 2000;
+  dcl req_pkt Packet_req;
+  dcl error_pkt Packet_error;
+  dcl source,dest PId;
+  dcl len Integer;
+  start;
+     /* set opcodes */
+     task error_pkt!opcode := 5;
+     nextstate wait;
+
+  state wait;
+     input r_pkt_receive_req(req_pkt,source,dest,len);
+     decision req_pkt!opcode = 1;
+     (true) :  /* a read request */
+	        create Send_file(source,total_len);
+	        nextstate -;
+     (false) : decision req_pkt!opcode = 2;
+	       (true) :  /* a write request */
+	                 create Receive_file(source);
+	                 nextstate -;
+	       (false) : nextstate - ;  /* else ignore */
+	       enddecision;
+     enddecision;
+ENDPROCESS;
+
+
+PROCESS system tftp/block Responder Receive_file(0,8);
+FPAR i_TID PId;  /* the initiator's transfer ID's */
+  dcl zero Integer := 0;
+  dcl full_pkt Integer := 512;
+  dcl len Integer;
+  dcl source,dest PId;   /* the TID's */
+  dcl data_pkt Packet_data; 
+  dcl error_pkt Packet_error;
+  dcl ack_pkt Packet_ack;
+  dcl curr_block_num Integer := 0;
+  dcl tm Duration := 10;
+  timer Timeout;
+  start;
+    /* initialise opcodes */
+    task ack_pkt!opcode := 4;
+    task error_pkt!opcode := 5;
+
+    /* send acknowledgment */
+    task ack_pkt!blocknum := curr_block_num;
+    output r_pkt_send_ack(ack_pkt,SELF,i_TID,zero);
+    task curr_block_num := curr_block_num + 1;
+    nextstate connected;
+
+  state connected;
+    input r_pkt_receive_data(data_pkt,source,dest,len);
+      decision dest = SELF;
+      (false) : /* sent to wrong place */
+	       output r_pkt_send_error(error_pkt,SELF,source,zero);
+	       nextstate -;
+      (true) : /* sent to right place */
+	  /* check if the data has the correct block number */
+	  decision data_pkt!blocknum = curr_block_num;
+	  (true) : /* it's ok */
+	       /* prepare ack_pkt for transmission */
+               task ack_pkt!blocknum := curr_block_num;
+	       task curr_block_num := curr_block_num + 1;
+               decision len < full_pkt;
+               (true) : /* the last packet to be received */
+			output r_pkt_send_ack(ack_pkt,SELF,i_TID,zero);
+			set(NOW+tm,Timeout);
+	                nextstate last_pkt;
+               (false) :output r_pkt_send_ack(ack_pkt,SELF,i_TID,zero);
+	                nextstate -;
+	       enddecision;
+	  (false) : /* see if it's the previous one */
+	       decision curr_block_num = curr_block_num - 1;
+	       (true) : /* need to resend previous ack */
+			output r_pkt_send_ack(ack_pkt,SELF,i_TID,zero);
+			nextstate -;
+	       (false) : /* error - should not happend, so leave */
+			output r_pkt_send_error(error_pkt,SELF,i_TID,zero);
+			/* inform parent */
+			output fail(SELF);
+			set(NOW+tm,Timeout);
+			nextstate final;
+	       enddecision;
+	  enddecision;
+      enddecision;
+	      
+  state last_pkt;
+    
+    /* wait to see if initiator got ack */
+    input r_pkt_receive_data(data_pkt,source,dest,len);
+      /* this occurs if initiator did not get ack */
+      decision dest = SELF;
+      (false) : /* sent to wrong place */
+	       output r_pkt_send_error(error_pkt,SELF,source,zero);
+	       nextstate -;
+      (true) : /* sent to right place */
+	  /* check if the data has the correct block number */
+	  decision ack_pkt!blocknum = curr_block_num - 1;
+	  (true) : /* it's ok, so resend ack */
+		  reset(Timeout);
+		  output r_pkt_send_ack(ack_pkt,SELF,i_TID,zero);
+		  set(NOW+tm,Timeout);
+		  nextstate -;
+	  (false) : /* error - should not happend, so leave */
+	          output r_pkt_send_error(error_pkt,SELF,i_TID,zero);
+		  /* inform parent */
+		  output fail(SELF);
+		  set(NOW+tm,Timeout);
+		  nextstate final;
+	  enddecision;
+      enddecision;
+    
+    input Timeout;   /* all has probably been done successfully */
+      output success(SELF);
+      set(NOW+tm,Timeout);
+      nextstate final;
+
+
+  state final;
+     input Timeout;
+       stop;     /* the process wouldn't acknowledge, so die */
+     input ack_end;
+       stop;    /* the process acknowledges, so die */
+	        
+ENDPROCESS;
+
+
+PROCESS system tftp/block Responder Send_file(0,8);
+FPAR i_TID PId,  /* the initiator's transfer ID's */
+     total_len Integer;
+  dcl zero Integer := 0;
+  dcl full_pkt Integer := 512;
+  dcl len Integer;
+  dcl source,dest PId;   /* the TID's */
+  dcl data_pkt Packet_data; 
+  dcl error_pkt Packet_error;
+  dcl ack_pkt Packet_ack;
+  dcl curr_block_num Integer := 1;
+  dcl tm Duration := 10;
+  timer Timeout;
+  start;
+    /* initialise opcodes */
+    task data_pkt!opcode := 3;
+    task error_pkt!opcode := 5;
+
+    task data_pkt!blocknum := curr_block_num;
+    decision total_len < full_pkt;
+      (true) : output r_pkt_send_data(data_pkt,SELF,i_TID,total_len);
+	       task total_len := 0;
+	       nextstate last_pkt;
+      (false) : output r_pkt_send_data(data_pkt,SELF,i_TID,full_pkt);
+	       task total_len := total_len - full_pkt;
+	       nextstate connected;
+    enddecision;
+
+  state connected;
+    input r_pkt_receive_ack(ack_pkt,source,dest,len);
+      decision dest = SELF;
+      (false) : /* sent to wrong place */
+	       output r_pkt_send_error(error_pkt,SELF,source,zero);
+	       nextstate -;
+      (true) : /* sent to right place */
+	  /* check if the ack has the correct block number */
+	  decision ack_pkt!blocknum = curr_block_num;
+	  (true) : /* it's ok */
+	       /* prepare data_pkt for transmission */
+	       task curr_block_num := curr_block_num + 1;
+               task data_pkt!blocknum := curr_block_num;
+               decision total_len < full_pkt;
+               (true) : output r_pkt_send_data(data_pkt,SELF,i_TID,total_len);
+	                task total_len := 0;
+	                nextstate last_pkt;
+               (false) :output r_pkt_send_data(data_pkt,SELF,i_TID,full_pkt);
+	                task total_len := total_len - full_pkt;
+	                nextstate -;
+	       enddecision;
+	  (false) : /* see if it's the previous one */
+	       decision curr_block_num = curr_block_num - 1;
+	       (true) : /* need to resend previous data */
+			output r_pkt_send_data(data_pkt,SELF,i_TID,total_len);
+			nextstate -;
+	       (false) : /* error - should not happend, so leave */
+			output r_pkt_send_error(error_pkt,SELF,i_TID,zero);
+			/* inform parent */
+			output fail(SELF);
+			set(NOW+tm,Timeout);
+			nextstate final;
+	       enddecision;
+	  enddecision;
+      enddecision;
+	      
+  state last_pkt;
+    
+    input r_pkt_receive_ack(ack_pkt,source,dest,len);
+      decision dest /= SELF;
+      (true) : /* sent to wrong place */
+	       output r_pkt_send_error(error_pkt,SELF,source,zero);
+	       nextstate -;
+      (false) : /* sent to right place */
+	  /* check if the ack has the correct block number */
+	  decision ack_pkt!blocknum = curr_block_num;
+	  (true) : /* it's ok */
+	       /* inform parent */
+	       output success(SELF);
+	       set(NOW+tm,Timeout);
+	       nextstate final;
+	  (false) : /* see if it's the previous one */
+	       decision curr_block_num = curr_block_num - 1;
+	       (true) : /* need to resend previous data */
+			output r_pkt_send_data(data_pkt,SELF,i_TID,total_len);
+			nextstate -;
+	       (false) : /* error - should not happend, so leave */
+			output r_pkt_send_error(error_pkt,SELF,i_TID,zero);
+			/* inform parent */
+			output fail(SELF);
+			set(NOW+tm,Timeout);
+			nextstate final;
+	       enddecision;
+	  enddecision;
+      enddecision;
+	      
+
+  state final;
+     input Timeout;
+       stop;     /* the process wouldn't acknowledge, so die */
+     input ack_end;
+       stop;    /* the process acknowledges, so die */
+	        
+ENDPROCESS;
+
+
+/*   THE NETWORK'S PROCESSES */
+/*  ------------------------------- */
+
+PROCESS system tftp/block Network Medium(1,1);
+/* the medium takes the initiator's packets and directs them to the
+   correct responder.  This is given by the destination port in the incoming
+   packet.  If this incoming packet is a request packet it is sent to the
+   server on the responder, otherwise it goes to the correct process that
+   has been created on the responder for this purpose.        */
+
+  dcl req_pkt Packet_req;
+  dcl data_pkt Packet_data;
+  dcl ack_pkt Packet_ack;
+  dcl error_pkt Packet_error;
+  dcl source,dest PId;
+  dcl len Integer;
+
+  start;
+    nextstate getmsg;
+
+  state getmsg;
+    input i_pkt_send_req(req_pkt,source,dest,len);
+      output r_pkt_receive_req(req_pkt,source,dest,len) to server;
+      nextstate -;
+    input i_pkt_send_data(data_pkt,source,dest,len);
+      output r_pkt_receive_data(data_pkt,source,dest,len) to dest;
+      nextstate -;
+    input i_pkt_send_ack(ack_pkt,source,dest,len);
+      output r_pkt_receive_ack(ack_pkt,source,dest,len) to dest;
+      nextstate -;
+    input i_pkt_send_error(error_pkt,source,dest,len);
+      output r_pkt_receive_error(error_pkt,source,dest,len) to dest;
+      nextstate -;
+
+    input r_pkt_send_data(data_pkt,source,dest,len);
+      output i_pkt_receive_data(data_pkt,source,dest,len) to dest;
+      nextstate -;
+    input r_pkt_send_ack(ack_pkt,source,dest,len);
+      output i_pkt_receive_ack(ack_pkt,source,dest,len) to dest;
+      nextstate -;
+    input r_pkt_send_error(error_pkt,source,dest,len);
+      output i_pkt_receive_error(error_pkt,source,dest,len) to dest;
+      nextstate -;
+
+ENDPROCESS;
+
+

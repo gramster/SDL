@@ -1,0 +1,47 @@
+system test;
+	newtype Packet 	/* Dummy data packet definition */
+		array (2) of integer;
+	endnewtype
+	block testblk;
+		process testprocess1 referenced;
+		process testprocess2 referenced;
+	endblock;
+endsystem;
+
+process system test/block testblk testprocess2(1,1);
+	dcl exported xpkt packet;
+	dcl revealed rpkt packet;
+	start;
+		task xpkt(0) := 0;
+		task xpkt(1) := 1;
+		task rpkt(0) := 2;
+		task rpkt(1) := 3;
+		export(xpkt);
+		task xpkt(0) := 4;
+		task xpkt(1) := 5;
+		nextstate idle;
+	state idle;
+		provided true;
+			nextstate idle2;
+	state idle2;
+		provided true;
+			stop;	     	
+endprocess;
+
+process system test/block testblk testprocess1(1,1);
+	dcl p packet;
+	imported xpkt packet;
+	viewed system test/block testblk/process testprocess2 rpkt packet;
+	start;
+		nextstate idle;
+	state idle;
+		provided true;
+			task p := import(xpkt);
+			write p(0);
+			write p(1);
+			task p := view(rpkt);
+			write p(0);
+			write p(1);
+			stop;
+endprocess;
+

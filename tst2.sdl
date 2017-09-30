@@ -1,0 +1,32 @@
+/* Test of synonyms. Should produce:
+
+0      C 1  
+0      C 2  
+0      C 3  
+0      D 2  
+0      D 1  
+
+*/
+
+system test;
+	block testblk;
+		process testprocess referenced;
+	endblock;
+endsystem;
+
+process system test/block testblk testprocess(1,1);
+	synonym pi = 3.1415927;
+	synonym zok integer = 99;
+/*	synonym ext integer = external; */
+	synonym ext integer = 0;
+
+	start;
+		write pi;
+		write zok;
+		write ext;
+		write zok*ext;
+		write pi*2.;
+		write pi+pi;
+		write pi/pi;
+		stop;
+endprocess;

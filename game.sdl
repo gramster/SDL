@@ -1,0 +1,138 @@
+SYSTEM daemon_game;
+
+/* This is a game */
+
+SIGNAL newgame, probe, result, endgame, gameID, win, lose, score(integer);
+SIGNALLIST some = win, lose, score;
+SIGNALLIST more = gameid, (some);
+
+/*SIGNAL newgame, probe, result, endgame, gameID, win, lose, score,
+	subscr, endsubscr, bump;
+*/
+
+CHANNEL c1
+	FROM ENV TO blockgame
+	WITH newgame, probe, result, endgame;
+	FROM blockgame TO ENV
+	WITH (more);
+ENDCHANNEL c1;
+
+CHANNEL C3 FROM blockgame TO blockdaemon
+	WITH subscr, endsubscr;
+ENDCHANNEL C3;
+
+CHANNEL C4 FROM blockdaemon TO blockgame
+	WITH Bump;
+ENDCHANNEL C4;
+
+BLOCK Blockgame REFERENCED;
+
+BLOCK blockdaemon;
+	SIGNAL newgame, probe, result, endgame, gameID, win, lose, score(integer);
+	SIGNALLIST some = win, lose, score;
+	SIGNALLIST more = gameid, (some);
+	SIGNALROUTE sr1
+		FROM here TO there
+		WITH newgame, (more), probe, result, endgame;
+	CONNECT c4 AND sr1;
+	PROCESS p2;
+	FPAR a, b, c integer;
+	SIGNALSET newgame, (more);
+		DCL REVEALED nisof, sam INTEGER;
+		DCL EXPORTED gram INTEGER;
+		SIGNAL hi, lo;
+		SIGNALLIST some2 = hi, lo;
+		VIEWED BLOCK Blockgame/PROCESS p4 x boolean;
+		VIEWED BLOCK Blockgame/PROCESS p4 y boolean;
+		IMPORTED a, b, c integer;
+		TIMER t1(integer), t2(BLOCK Blockgame flag, boolean);
+	START;
+		checkitout: 
+			TASK sam := 1;
+			TASK sam := a*gram + sam/3 + nisof*2;
+			OUTPUT hi;
+			OUTPUT lo;
+			STOP;
+	ENDPROCESS p2;
+
+ENDBLOCK;
+
+ENDSYSTEM daemon_game;
+
+BLOCK SYSTEM daemon_game blockgame;
+	SIGNALROUTE sr2
+		FROM there TO here
+		WITH probe;
+	CONNECT c5 AND sr2;
+	PROCESS p4 REFERENCED;
+	SUBSTRUCTURE innards REFERENCED;
+ENDBLOCK SYSTEM daemon_game blockgame;
+	
+PROCESS SYSTEM daemon_game/BLOCK blockgame p4;
+	NEWTYPE tableEntry STRUCT f1, f2, f3 INTEGER; f4 INTEGER; ENDNEWTYPE
+	NEWTYPE table
+		ARRAY (5) OF tableEntry;
+	ENDNEWTYPE
+	DCL REVEALED x boolean;
+	DCL y, z boolean;
+	DCL a, b integer := 1, c, d tableEntry, e table, f, g integer;
+	TIMER tick(integer,integer), big(integer), ben(integer);
+	PROCEDURE fact;
+	FPAR IN n integer, IN/OUT res integer;
+		PROCEDURE in_fact;
+			PROCEDURE in_in_fact REFERENCED;
+		START;
+			groovy_label: JOIN the_rmlp;
+		ENDPROCEDURE;
+	START;
+		more_labels: RETURN;
+	ENDPROCEDURE;
+START;
+	Hello:
+		STOP;
+	STATE x;
+		SAVE a, b, c;
+		INPUT *;
+			Goodbye:
+				TASK a := e(a)!f3;
+				TASK b := ACTIVE(tick(,));
+				OUTPUT x(0), y(1,2);
+				CREATE newprocess(3,4,5);
+				CALL fact;
+				RESET(clock(0,1,2));
+				NEXTSTATE y;
+	ENDSTATE;
+	STATE y;
+		INPUT a(b,c), d;
+			adios:
+				OUTPUT a(2), b(3), result TO 2 VIA sr1, sr2;
+				CALL newprocess(3,4,5);
+				CREATE myproc;
+				SET (10,big(0)), (20,ben(4));
+				RETURN;
+	ENDSTATE;
+	
+ENDPROCESS;
+
+PROCEDURE SYSTEM daemon_game/BLOCK blockgame/PROCESS p4/
+			PROCEDURE fact/PROCEDURE in_fact in_in_fact;
+FPAR IN like integer, IN/OUT wow integer;
+NEWTYPE table
+	ARRAY (10) OF INTEGER;
+ENDNEWTYPE
+START;
+	oh_no: STOP;
+ENDPROCEDURE;
+
+SUBSTRUCTURE SYSTEM daemon_game/BLOCK blockgame innards;
+	SIGNAL nests, ov, stuff;
+	BLOCK insidegame;
+		SIGNALROUTE sr6
+			FROM earlier TO later
+			WITH time;
+		CONNECT c6 AND sr6;
+		PROCESS p6 REFERENCED;
+	ENDBLOCK insidegame;
+ENDSUBSTRUCTURE;
+			    
+

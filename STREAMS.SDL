@@ -1,0 +1,311 @@
+(Perhaps you could forward this to other members of the DNA lab)
+
+I think it might help to understand STREAMS a bit better if I
+show the skeleton of a STREAMS driver. Each STREAMS driver/module
+must supply a set of C routines, as follows:
+
+	open 	- to open the STREAM. This initialises any data structures.
+	close	- to free up a STREAM. This releases allocated memory,
+			clears scheduled timeouts, etc.
+
+Every MODULE (1-1 processing element) must have:
+
+	wput	- write side put
+	wsrv	- write side service
+	rput	- read side put
+	rsrv	- read side service
+
+Every Hardware Driver must support the same routines as a module, as 
+well as an interrupt routine if the hardware generates interrupts.
+
+Every multiplexing driver (n to m processing element) must have:
+
+	uwput	- upper write side put
+	uwsrv	- upper write side service
+	urput	- upper read side put
+	ursrv	- upper read side service
+	lwput	- lower write side put
+	lwsrv	- lower write side service
+	lrput	- lower read side put
+	lrsrv	- lower read side service
+
+Think of a module as an intelligent pipe. A module is meaningless on its
+own - it must site between other modules/drivers.
+
+The interface between applications in user space and the STREAMS in 
+kernel space is via a processing element known as the STREAM head - 
+this has two queues as well. The STREAM head is fixed; developers 
+do not have anything directly to do with it.
+
+Here is an example configuration:
+
+
+	Application		Application		Application
+USER        |                       |                        |
+SPACE   |-------------|     |----------------|      |--------------|
+        |   STREAM    |     |   STREAM       |      |   STREAM     |
+========|   HEAD      |=====|   HEAD         |======|   HEAD       |
+        |             |     |                |      |              |
+KERNEL  ---------------     ------------------      ----------------
+SPACE       |                       |                       |
+          STREAM                  STREAM                 STREAM
+          MODULE                  MODULE                 MODULE
+            |                       |                       |
+            |                       |                       |
+            \                      /                        |
+             \                    /                         |
+              \                  /                          |
+         ------------------------------                     |
+         |    Multiplexing driver     |                     |
+         ------------------------------                     |
+                       |                                    |
+                    ---------------------------------------------
+                    |            Hardware Driver                |
+                    ---------------------------------------------
+
+
+For example, the hardware driver could be for a video card, the
+multiplexing driver could be a graphics window device driver, and
+the STREAM module could be a PostScript interpeter (this is just one
+of any number of imaginable examples!)
+
+The open and close routines are not too important; let me describe
+the put and service routines, which you will notice come in pairs.
+
+The put routine has the form:
+
+	put(msg)
+
+where msg is a STREAMS message, which could be one of several types,
+such as:
+
+	M_DATA	- data of some kind - this is typically the message
+			type used in character-oriented apps
+	M_PROTO	- a protocol data unit, the message type typically
+			used in packet-oriented apps
+	M_ERROR	- a critical error, only used in a FUBAR state
+	M_FLUSH	- a control message ordering drivers to flush their queues
+	M_PCPROTO - high priority protocol data unit (such as expedited data)
+	M_IOCTL	- Unix I/O control message - mostly used to assemble
+			and dismantle the collections of STREAMS such 
+			as in the diagram above
+
+When an application does a write() system call to a STREAM device, 
+an M_DATA message is passed to the uppermost driver/module's write-side
+put() routine. The typical structure of a put routine is:
+
+	put(msg)
+	{
+		if (msg is a M_FLUSH)
+			flush the queues
+		else if (msg is an M_IOCTL)
+			handle the ioctl command and send an M_IOCACK 
+			or M_IOCNAK message back
+		else enqueue the message for service
+	}
+
+When a message is enqueued, the service routine is scheduled to run.
+At the end of handling a system call, the UNIX kernel runs the STREAMS
+scheduler before returning to the application which made the system
+call. The STREAMS scheduler calls the service routines of any drivers
+or modules that have queues scheduled for service.
+
+The typical structure of the service routine is:
+
+	srv(queue)
+	{
+		int rtn;
+		while ((msg = getq(queue)) != NULL)
+		{
+			switch (msg type)
+			{
+			case M_DATA:
+				rtn = handleData(msg);
+				break;
+			case M_PROTO:
+				rtn = handlePDU(msg);
+				break;
+			default:
+				break;
+			}
+			if (rtn == RETRY)
+			{
+				putbq(queue, msg)
+				schedule recovery if necessary (using
+					a timeout or similar mechanisms)
+				return
+			}
+			else freemsg(msg);
+		}
+	}
+
+The handlers for the different type of messages will return RETRY
+if the message could not be serviced successfully yet, because of
+flow control or a memory allocation failure, for example. The message
+is requeued and the service routine exits. It may be necessary to
+schedule some form of recovery to ensure the service routine is scheduled
+again when the request can be satisfied, so that deadlock doesn't
+occur.
+
+Once one gets into the actual handlers things start becoming very specific
+to the area of application. For a protocol, though, I can describe a bit
+more. We spoke of the Transport Layer Interface (TLI) under UNIX. This
+is a set of library routines allowing application developers to write
+network applications with a service interface based on the OSI Transport
+service. Typical routines in the TLI library are:
+
+	t_open - open a TSAP (somewhere in /dev, such as /dev/tcp,
+					/dev/osi, etc)
+	t_bind - bind a TSAP to a transport address - this is used to
+			start listening for incoming connect requests
+			for the address
+	t_look	- see if there is a TPDU waiting to be received from
+			the STREAM head, and what its type is
+	t_accept - accept a T_CONN_IND
+	t_send - send data
+	t_rcvdis - receive a T_DISC_IND
+	t_snddis - send a T_DISC_REQ
+	t_connect - send a T_CONN_REQ
+
+When an application calls one of these, the library routine builds
+an M_PROTO message according to a standard called TPI (Transport
+Provider Interface) and passes it to the TPI-conformant driver.
+In this case, the put routine does some extra work - if a T_DISC_REQ
+M_PROTO is received from the STREAM head, the queue is flushed. If the
+queue contains a T_CONN_REQ, the T_DISC_REQ is discarded as well, as 
+the connection doesn't exist yet. Apart from this flush, the messages
+are queued for service.
+
+A TPI service routine looks something like this:
+
+	handlePDU(queue, message)
+	{
+		int rtn;
+
+		switch (message type)
+		{
+		case T_CONN_REQ:
+			rtn = handleTConnReq(queue, message);
+			break;
+		case T_DISC_REQ:
+			rtn = handleTDiscReq(queue, message);
+			break;
+		.... (etc)
+		}
+		return rtn;
+	}
+
+and each handler has the basic form:
+
+	handleTXxxxReq(queue, message)
+	{
+		if (nextstate[state][message type] == ILLEGAL)
+			return ERR
+		process message, returning ERR or RETRY if problems
+		state = nextstate[state][message type]
+		send T_OK_ACK in reply
+		return DONE
+	}
+
+Note that if there are several STREAMS modules in a sequence, their
+queues on each side are on a linked list, something like:
+
+		write queue A <---------> read queue A
+			|                       ^
+			v                       |
+		write queue B <---------> read queue B
+			|                       ^
+			v                       |
+		write queue C <---------> read queue C
+
+That is, each queue points to the next one in the sequence, as well
+as to its corresponding one in the read/write pair. The former is
+accessed with queue->q_next, the latter with OTHERQ(queue).
+
+If the handler must pass a message on to the next driver/module in the
+STREAM path (or to the STREAM head), it does this with putnext(queue,msg).
+If module A in the diagram above does a putnext with its own write
+queue as the argument, this results in B's write side put routine being
+called with the message as its argument. This is how messages flow
+through the system. Before a module/driver does a putnext, it should
+do a canput(queue->q_next), which returns FALSE is the target queue
+is flow controlled (that is, it has too many messages queued already).
+If canput() fails, the handler would normally return RETRY. When a
+flow controlled message queue's length subsides below the low water
+mark, STREAMS automatically `back-enables' the preceding queue's
+service routine. Thus if B's write side queue is flow controlled,
+and then this subsides, A's write side service routine is automatically
+rescheduled.
+
+That is a pretty comprehensive overview of the STREAMS framework, 
+particularly from my own practical experience of using it (I've written
+one hardware driver and about 6 multiplexing drivers in the last two
+years). I should mention two other routines used for recovery and timeouts:
+
+	bufcall(function, argument, size)
+
+is used to schedule recovery from a memory allocation failure. When a
+message of the specified size is available for allocation, STREAMS will
+call the function passing it the argument. The function will typically
+just call qenable(queue) to schedule a queue's service routine to run.
+
+	timeout(function, argument, ticks)
+
+is similar, but ticks are the number of processor clock ticks that
+should elapse after which the function is invoked. Timeouts can be
+cleared with untimeout().
+
+It should be clear from all of the above that modules and multiplexors
+are mostly passive and reactive - they react to messages arriving 
+from the neighbourings STREAMS modules/drivers, handle the messages,
+and exit until further messages arrive. They do not actively poll. UNIX
+takes care of the scheduling. Thus there is no main() routine or 
+anything like that.
+
+============================
+What I want to do with the STREAMS idea will take some time yet to 
+determine feasibility, etc, but it is something like this:
+
+	- determine the general framework (this document is a good
+		start at specifying this)
+
+	- map this to SDL. It may be a good exercise to take one of
+		the drivers I've done and specify it with SDL, trying
+		to keep the C and SDL structure as similar to each other
+		as possible
+
+	- constrain the user somehow to fit into this framework. The
+		best idea is probably to have a front end based around
+		the STREAMS framework that in turn generates SDL?
+
+	- the result of this is a constrained set of admissible SDL
+		specification *structures* - which, I hope, leads to 
+		a constrained set of model structures, when dealing 
+		with performance analysis, etc.
+
+I am not suggesting that the SDL compiler/interpreter be broken 
+for this. Rather, I think an additional front end is the best approach,
+to generate SDL, and C. The use of the STREAMS framework has two primary
+goals as I see it:
+
+	* it may be possible to generate large percentages of
+		STREAMS driver code automatically, which is a 
+		Good Thing for industry use
+
+	* it may be possible to simplify the back ends. For example,
+		it may be a lot easier to build a verifier for 
+		the subset of specs based on the STREAMS framework than
+		for the complete set of all admissible SDL specs.
+		The same may apply for conformance testers, etc.
+
+At this stage, I don't expect anyone to change anything they are doing.
+I would just like people to think about this framework, and how it
+may/may not be applied or be useful in the area they are working. I
+am certainly going to continue to investigate it, as I think it may
+have lots of potential (it may turn out to be a waste of time, on the
+other hand).
+
+If it does pan out, there is a great project here. Instead of 
+generating SDL to C/C++, build a STREAMS driver designer which
+generates C code for implementation, and SDL code for other things.
+
