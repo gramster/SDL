@@ -1,0 +1,90 @@
+\docomentstyle[a4]{article}
+\begin{document}
+\title{Converting SDL/PR to SDL/GR}
+\author{Graham Wheeler\\
+Data Network Architectures Laboratory\\
+Department of Computer Science\\
+University of Cape Town}
+\maketitle
+
+\section{Introduction}
+
+This document considers the problem of converting SDL/PR to
+SDL/GR. The problem can be separated between two classes of
+objects, essentially representing nodes (e.g. blocks, procedures,
+etc) and arcs (e.g. signalroutes, channels, etc) of a directed
+graph. For objects that represent nodes, the problems to be solved
+are:
+
+\begin{itemize}
+\item where the node should be positioned;
+\item the size of the node; and
+\item the layout of the node's `children'.
+\end{itemize}
+
+For objects that represent arcs, the problem is one of identifying
+the end points and junctions of $90^o$ turns, as well as placement
+of the arc label.
+
+\section{Remote References}
+
+A problem with the graphical form of SDL is that diagrams may become
+very cluttered. To prevent this, remote references may be used. To
+simplify the automatic layout problem, we assume that all references
+are remote. This allows the simplest and smallest representation of
+processes, procedures, blocks, and so on.
+
+\section{The System}
+
+The system consists of a block labelled at top-left with the system
+name. The block is divided into two parts; at the top are one or more
+pages containing the textual form of the top level type and signal
+definitions, and 
+below this is a diagrammatic view of the constituent blocks,
+connected with arcs representing the channels, the arcs being 
+labelled with the signals that may pass through the channels
+in each direction. The arcs may also join the perimeter of the
+system block if the channels are connected to the environment.
+
+\section{Blocks}
+
+A block is much like a system except that the diagrammatic part now
+shows the block's processes and their connections via signalroutes.
+
+\section{Processes}
+
+A process conists of a labelled block, with one or more pages
+containing the declarations local to the process, and diagrammatic
+trees representing the state transitions. If there is insufficient
+space the description can be split into multiple pages.
+
+Procedures are essentially the same.
+
+\section{Basic Nodes}
+
+Certain nodes cannot be decomposed any further. These nodes have as
+a `child' a label consisting of the non-generic part of the phrase
+representation. Such nodes include:
+
+\begin{itemize}
+\item nodes indicating the input states in an SDL state construct;
+\item nodes indicating the next state, stop or return, at the end
+of SDL transitions;
+\item nodes indicating decisions, tasks, signal inputs and outputs,
+procedures calls and process creations.
+\end{itemize}
+
+The size of the node can be computed from the size of the text label.
+The position of the node is typically immediately below the preceding
+node in a state sequence; exceptions to this are input nodes (as
+there may be several input nodes following a state node), and nodes
+following decision nodes.
+
+In an SDL state paths can branch but not join. This is because the
+joining of paths is represented using disconnected join and label 
+nodes. A consequence of this is that a state sequence forms a tree
+rooted in the input state node.
+
+\section{Navigation through the System}
+
+\end{document}

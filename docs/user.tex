@@ -1,0 +1,684 @@
+\documentstyle[a4,12pt]{article}
+\begin{document}
+\author{Graham Wheeler}
+\title{SDL Toolset User's Guide}
+\maketitle
+
+\section{Introduction}
+
+This is a short guide to the SDL*Design Toolset v1.0.
+{\em Note that this is an alpha release of the toolset!}
+The programs in the toolset are:
+
+\begin{itemize}
+\item {\tt sdlcc} -- the multi-pass driver;
+\item {\tt sdlpp} -- the preprocessor;
+\item {\tt sdlc1} -- the first pass of the compiler (parser and AST
+constructor);
+\item {\tt sdlc2} -- the second pass of the compiler (checker and code
+generator);
+\item {\tt sdlrun} -- the interpreter/debugger.
+\item {\tt sdldis} -- the disassembler;
+\item {\tt sdldc} -- the AST decompiler;
+\end{itemize}
+
+The toolset supports a large subset of ITU SDL-88/PR.
+
+Each is now described in turn.
+
+\section{The Multi-Pass Driver {\tt sdlcc}}
+
+This is the command usually used to invoke the three phases of
+compilation, namely preprocessing (done by {\tt sdlpp}),
+parsing and syntax checking (done by {\tt sdlc1}), and semantic 
+checking and code generation (done by {\tt sdlc2}).  {\tt sdlcc}
+invokes each of these in turn, provided the preceding phase
+ran with no errors.
+
+The file containing the specification must be given in the command
+line. If the file cannot be opened, the compiler will try to open it
+with a `{\tt .sdl}' extension. 
+
+If remote definitions are used in the specification, these can
+be given in separate files. In this case, all files must be given on
+the command line, with the file containing the main system
+specification first.
+
+{\tt sdlcc} passes any file arguments on to the preprocessor.
+Any other arguments are either ignored or passed on to one of
+the three passes. The latter occurs when an argument is given 
+which is of the form ``{\tt -P}{\em string}'' (in which case 
+``{\tt -}{\em string}'' is passed to the preprocessor), 
+``{\tt -1}{\em string}'' (parser) or ``{\tt -2}{\em string}''
+(checker/code generator). For example, to pass the argument
+``{\tt -H2}'' to the parser, invoke {\tt sdlcc} with a ``{\tt -1H2}''
+argument.
+
+If the last message produced by {\tt sdlcc} is ``Compilation
+successful'', you can execute the interpreter {\tt sdlrun}.
+
+Each of the three phases supports a {\tt -H} argument which
+results in statistics about the heap use being printed. The
+{\tt -H} can be followed by a `level' value indicating the amount of detail
+required (maximum detail at level 3 or more).
+
+\section{The Preprocessor {\tt sdlpp}}
+
+The preprocessor is intended as a macroprocessor for SDL. At the
+time of writing macros are not yet supported. Nontheless, the
+preprocessor coalesces the input files, removes comments, and adds
+its own special comments identifying the correspondence between
+lines in the coalesced file and lines in the original input file(s).
+This allows errors reported by the other phases to refer to the
+unpreprocessed source.
+
+Apart from the {\tt -H} argument, the preprocessor can take a
+``{\tt -o} $<${\em file}$>$'' argument specifying the file to
+use for output. If this is not specified the output is sent to the
+standard output.
+
+\section{The First Pass {\tt sdlc1}}
+
+The first pass of the compiler parses the specification and
+builds an abstract syntax tree (AST) representation, which is
+written to the file {\tt ast.out}. Virtually no checking other than
+syntactic checking is done.
+
+The file containing the specification must be given in the command
+line. If the file cannot be opened, the compiler will try to open it
+with a `{\tt .sdl}' extension. In fact invocation of this phase is
+very similar to that of the preprocessor - in the case where a 
+specification contains no macros {\tt sdlc1} can be invoked directly
+without any preprocessing being necessary.
+
+The following SDL constructs are {\em not} currently supported:
+
+\begin{itemize}
+\item string types; the toolset supports characters,
+booleans, naturals and integers, reals, times and durations,
+and arrays and structures of these, as well as enumerations.
+\item service decompositions;
+\item block and channel substructures;
+\item signal refinements;
+\end{itemize}
+
+The following have not been implemented at the time of writing
+but will be real soon:
+
+\begin{itemize}
+\item transition alternatives;
+\item macros.
+\end{itemize}
+
+Also, parameters passed through nested procedures, and the predefined
+variables ({\tt sender}, {\tt self}, etc) are untested at the time
+of writing.
+The first pass can take a {\tt -S} argument which just suppresses
+the printing of the input file name. This is used when invoked
+from {\tt sdlcc} as the input file name in that case is a that 
+of a temporary file created as a `pipe' between the preprocessor
+and the first pass.
+
+\section{The Second Pass {\tt sdlc2}}
+
+The second pass reads the {\tt ast.out} file produced by the first
+pass, allocates addresses and indices to the various objects 
+(such as variables, states, signals, parameters, etc), performs 
+semantic checking on the tree, and, if all has gone well, generates
+code for the system and links the code. The resulting executable
+(well, interpretable) code is written to the file {\tt sdl.cod}. The
+modified AST (with addresses/indices) is written to the file {\tt
+ast.sym} for use by the interpreter/debugger.
+ 
+The second pass can take an optional {\tt -v} (verbose) argument, in
+which case it produces all sorts of arcane output. Also, a {\tt -l}
+argument can be used to suppress linking (only for {\tt sdldis} 
+hacking!).
+
+\section{The Decompiler {\tt sdldc}}
+
+The decompiler reads the {\tt ast.out} file produced by the first
+pass and prints the tree in SDL. The result should be equivalent to
+the original source, although the ordering may be slightly different,
+and remote references are resolved (this is done by the first pass).
+The decompiler can be used as a test to see that the compiler
+parsed a specification correctly, and as a pretty printer.
+
+\section{The Disassembler {\tt sdldis}}
+
+The disassembler prints the contents of the code file {\tt sdl.cod}
+produced by the second pass. It is not of much use except to those
+who understand the underlying pseudocode!
+
+\section{The Interpreter/Debugger {\tt sdlrun}}
+
+If the first and second passes have been executed successfully (i.e.
+no errors reported) then the interpreter can be used. At the time of
+writing the interpreter does not yet support the external 
+environment of the system. Also, support for procedures is
+incomplete (although simple procedures can be used).
+
+The interpreter command set is intentionally `obscure'. The idea
+is to provide a simple but powerful interface which will later be
+driven from a GUI or other user-friendly front-end. Thus, the
+interpreter is not really intended to be executed by mere mortals.
+However, it turns out that once you get the hang of it, it's actually
+quite easy!
+
+The interpreter can take a {\tt -L} command-line argument, in which 
+case its output is sent to a file {\tt sdlrun.log} as well as to the
+standard output. It also can take a {\tt -H} argument for heap 
+statistics.
+
+When the interpreter starts up, you should see some messages
+something like this:
+
+\begin{verbatim}
+     0      C 1  
+     0      C 2  
+     0      C 3  
+     0      D 2  
+     0      C 4  
+     0      C 5  
+     0      D 4  
+     0      C 6  
+     0      C 7  
+     0      D 6  
+     0      D 1  
+\end{verbatim}
+
+These are {\em trace messages}. The interpreter executes the
+system, requesting commands on occasion (exactly when will vary, 
+as you will see), and produces trace messages as output. The
+trace messages belong to several different classes. Each message
+starts with the {\em time} of the event the message is reporting,
+followed by a single character {\em class code}. The message classes
+and remaining fields are described in the table below:
+
+\small
+\begin{tabular}{lclllll}\\
+\hline
+Event Type & Code & Fields &&&&\\
+\hline
+\hline
+Process created & {\tt C} & {\em process} &&&&\\
+Process destroyed & {\tt D} & {\em process} &&&&\\
+\hline
+Signal output & {\tt O} & {\em sender} & {\em signal} & {\em receiver} &&\\
+Signal arrived & {\tt A} & {\em receiver} & {\em signal} &&&\\
+Signal input & {\tt I} & {\em receiver} & {\em signal}& &&\\
+Signal lost & {\tt U} & {\em receiver} & {\em signal} & {\em channel} &&\\
+Implicit transition fired & {\tt T} & {\em receiver} & {\em signal} &&&\\
+\hline
+Transition fired & {\tt F} & {\em process} & {\em transition} &&&\\
+State change & {\tt S} & {\em process} & {\em fstate} & {\em tstate} & {\em
+fname} & {\em tname}\\
+Source line change & {\tt L} & {\em file} & {\em line} &&&\\
+S-code instruction & {\tt X} & {\em stack top} & {\em instruction} &&& \\
+\hline\\
+\end{tabular}
+\normalsize
+
+This is all very complicated, but can be made easier if you 
+enter {\tt v}. This makes the traces verbose, showing process
+type names and locations in the AST, and is easier to read to begin
+with (entering {\tt v} again goes back to terse mode).
+There is a good reason for the output usually being terse,
+though - filters, which we describe later.
+
+The messages at start-up are informing us of the 
+creation of system and block processes, which then create initial 
+processes, and then terminate. These are the only types of traces
+that are enabled by default. To change the types of traces, you use
+the {\tt m} command. This is followed by a set of letters
+representing the trace class (these are the same as shown in the
+trace messages except that process creation/deletion is selected
+with the single character {\tt p}).
+To disable one or more trace classes, precede the command with a minus.
+For example, the following two commands disable the production of
+process create/delete messages, and enable the production of output
+and transition firing messages:
+
+\begin{verbatim}
+    -mp
+    mof
+\end{verbatim}
+
+Enter {\tt ?m} to list the currently enabled trace classes.
+
+Once you've selected the trace message classes you want to see,
+you can start running the system. The interpreter holds a
+table of active processes. Some of these should be active
+already. To see the list of processes, enter `{\tt ?p}'.
+The result will be something like:
+
+\begin{verbatim}
+     P3  
+     P5  
+     P7  
+\end{verbatim}
+
+(more if you're in verbose mode). These are the three active
+processes, with process IDs 3, 5, and 7. For more information about
+a process, enter `{\tt ?p}' followed by the process ID. You'll see
+something like:
+
+\begin{verbatim}
+     P7           idle (0 )
+     Port: p_data_req(1) [11]
+     sn         = 0
+     rn         = 0
+     seq        = UNDEFINED
+     tm         = 10
+     T1   2        2        3       
+     T2   1        4        4       
+     T3   0        -        -
+\end{verbatim}
+
+This tells us that process 7 is in state {\tt idle} (which has index
+0) and has three transitions. Transition T1 has fired twice, first 
+at time 2 and most recently at time 3; transition T2 has fired once
+at time 4, and transition T3 hasn't fired yet. There is a single 
+signal queued for input, namely a p\_data\_req with argument 1. The
+arrival time of the signal is time 11. Between the {\tt Port} line
+and the transitions appear the names and values of variables and
+parameters defined in the process.
+
+To see the body of a transition, enter {\tt ?t} followed by the
+process and transition indices. For example, to view the last
+transition of the process in the example above we would use
+{\tt ?t 7 3}.
+
+
+To execute, enter `{\tt x}' followed by an optional
+numeric count and then an {\em execution unit}. The interpreter
+will continue execution until the number of the `events' specified
+by the execution unit have occurred (the default being one), and
+then ask for another command. This is why it was stated earlier that 
+it varies at what point the interpreter asks for a command. 
+The unit can be any one of {\tt I} (scheduler iterations), 
+{\tt T} (time units), {\tt C} (scheduler choices - not implemented yet),
+{\tt M} (trace messages), {\tt F} (transition firings),
+{\tt L} (source line number changes), or {\tt X} (s-code instruction
+executed). {\tt L} doesn't make much sense except for small numbers
+as execution tends to jump all over the place with respect to the
+original source.
+
+For example, {\tt XF} executes until the next transition has fired,
+{\tt X3F} executes three transitions before asking for another
+command, and so on. You can combine using trace classes and the
+{\tt M} execution unit to create simple breakpoints on signal
+passing. For example, if you enable only signal output traces, then 
+{\tt X5M} executes until five signals have been output.
+Unfortunately, this isn't very specific - we may want to constrain
+which process' outputs we are interested in, or which signals we are
+interested in, for example. This is where filters are used.
+
+Internally, every time a traceable event occurs, the {\em scheduler}
+or currently executing {\em process} informs the {\em trace manager}.
+The trace manager checks if the trace should be output, and if so,
+tells the scheduler to do so. It makes its decision based firstly on
+which trace classes are enabled, and secondly on a set of {\em
+accept} and {\em reject filters}. These filters are simple patterns
+matched against the fields in the trace message. A candidate message
+is first checked against the accept filters; if it matches one it is 
+output. If not it is checked against the reject filters; if it
+matches one it is {\em not} output. If it doesn't match any reject
+filter, it is output by default. Thus the reject filters override the
+default, while the accept filters override the reject filters. The
+reject filters narrow down the trace; the accept filters let selected
+things through.
+
+To set an accept filter, enter `{\tt A}' followed by an optional
+count and the filter specification. 
+To set a reject filter, enter `{\tt R}' followed by an optional
+count and the filter specification. Deleting a filter is done 
+by entering the command preceded by a minus (no count is allowed).
+
+We'll get to the count shortly. The specification consists of a
+letter identifying the trace class that we are filtering (these are
+the same as for the {\tt M} command), an optional process ID (which
+can be {\tt *} to match any), and up to three optional fields (each
+of which can be {\tt *} to match anything). The three-field
+limitation is why the terse output form is usually best when using
+filters.
+
+For example, the following commands filter out any transition firing
+trace messages from process 3, and all signal output trace messages
+of the signal with index 2:
+
+\begin{verbatim}
+     r f 3
+     r o * * [2]
+\end{verbatim}
+
+The counts have different meanings for each type of filter. For a
+reject filter, the count is the lifetime of the filter. After it has
+caused the rejection of that many trace messages it becomes inactive
+and will be reallocated by the scheduler at some point.
+For an accept filter, on the other hand, the count represents a
+`sleep' period - only {\em after} that many matches have been made
+by the filter will it actually cause matching messages to be
+accepted.
+
+A couple of examples will help illustrate this:
+
+\begin{verbatim}
+     -m
+     mf
+     r10f
+     xm
+\end{verbatim}
+
+This enables transition firing traces only, creates a filter that
+rejects the next ten of these, and runs until the first trace message
+output after the reject filter expires; i.e. it runs until ten or
+eleven transitions have fired (the exact number depends on the last
+execution unit).
+
+\begin{verbatim}
+     -m
+     mo
+     ro
+     a10o 5
+     xm
+\end{verbatim}
+
+This runs until process 5 has output 10 signals.
+
+Judicious use of the interpreter command set can give you 
+very powerful breakpoint functionality. This could be considerably
+enhanced by providing full regular expression matching in filters,
+but the performance cost may be too high.
+
+At present, signals that are transported between blocks are delayed
+for one time unit before arriving at their destination (within blocks
+there is no delay). This whole mechanism will be upgraded, but the 
+interpreter does offer a bit more for now. The {\tt C} command
+offers control over the known channels (at the moment the interpreter 
+only learns of each channel once an output occurs on it; a minor drawback).
+{\tt ?C} lists the known channels. The last two fields are the
+(single-valued at present) delay associated with the channel, and the
+reliability (in percent). Initially these should be 1 and 100
+respectively. You can change them be entering {\tt C} followed by
+the channel table entry number, the new delay, and the new
+reliability. 
+
+Finally, if the system deadlocks, this will be reported, That is a
+good time to enter `{\tt D}', which enables a trace of transition 
+guard evaluation, and then `{\tt XF}' to force a reevaluation. If
+you are logging to {\tt sdlrun.log} you can get a good idea of why
+no transitions are enabled from the resulting output (it's too much
+to deal with on the screen). List all the processes too, with the
+{\tt L} command. So far I've gone through several iterations of 
+the AB protocol spec deadlocking, and I've generally suspected the
+interpreter (very new code), but it's always been the AB spec.
+It's now quite easy to see what's up. The trace messages produced 
+with the {\tt D} option on are not very compatible with filters,
+so my advice is don't use them at the same time.
+
+\newpage
+\section{Interpreter Quick Reference}
+
+\subsection{Trace Message Formats}
+
+\begin{tabular}{ll}
+{\em time} {\tt F} {\em pid} {\em tnum} & Transition fired\\
+{\em time} {\tt T} {\em pid} {\em signal} & Implicit transition\\
+{\em time} {\tt I} {\em pid} {\em signal} & Signal input\\
+{\em time} {\tt U} {\em pid} {\em chan} {\em signal} & Signal lost\\
+{\em time} {\tt O} {\em srcpid} {\em signal} {\em destpid} & Signal output\\
+{\em time} {\tt L} {\em file} {\em line} & Source line change\\
+{\em time} {\tt C} {\em pid} & Process created\\
+{\em time} {\tt D} {\em pid} & Process destroyed\\
+{\em time} {\tt S} {\em pid} {\em from} {\em to} {\em fname} {\em tname}
+& State changed\\
+{\em time} {\tt X [} {\em stack} {\tt ]} {\em instruction} & S-code
+instruction\\
+{\em time} {\tt A} {\em pid} {\em signal} & Signal arrival\\
+\end{tabular}\\
+
+In the above, {\em signal} contains the signal name, the first couple
+of arguments, and the arrival time of the signal (this is in the
+future in output trace messages). {\em pid}s are simply integers
+in terse mode, but include the AST location and process type name in
+verbose mode.
+
+\subsection{Trace Classes}
+
+\begin{tabular}{ll}
+{\tt P} & Process creation and deletion (used in commands)\\
+{\tt C} & Process creation (used in trace messages)\\
+{\tt D} & Process deletion (used in trace messages)\\
+{\tt O} & Signal output\\
+{\tt A} & Signal `arrival' on input port queue\\
+{\tt I} & Signal input\\
+{\tt F} & Transition firing\\
+{\tt L} & Source line change\\
+{\tt U} & Signal lost\\
+{\tt X} & S-code instruction executed\\
+{\tt S} & State changes\\
+{\tt T} & Implicit transitions\\
+\end{tabular}\\
+
+These are used in the {\em classlist}s in the trace control commands,
+and in the {\em tc}s in filter commands. Filters for {\tt S} trace
+messages are not supported.
+
+\subsection{Trace Control}
+
+\begin{tabular}{ll}
+{\tt ?m} & Shows which trace classes are enabled\\
+{\tt m} & Enable all trace classes except {\tt U}\\
+{\tt m} {\em classlist} & Enable the specified trace classes\\
+{\tt -m} & Disable all the specified trace classes\\
+{\tt -m} {\em classlist} & Disable the specified trace classes\\
+\end{tabular}
+
+\subsection{Filters}
+
+\begin{tabular}{ll}
+{\tt ?a} & Lists accept filters\\
+{\tt a} {\em cnt} {\em tc} [ {\em PId} [ {\em flds} ] ] & Set accept filter\\
+{\tt -a} {\em tc} [ {\em PId} [ {\em flds} ] ] & Delete accept filter\\
+{\tt ?r} & Lists reject filters\\
+{\tt r} {\em cnt} {\em tc} [ {\em PId} [ {\em flds} ] ] & Set reject filter\\
+{\tt -r} {\em tc} [ {\em PId} [ {\em flds} ] ] & Delete reject filter\\
+\end{tabular}\\
+
+{\em PId} and {\em flds} can be {\tt *} to match any, or must
+match the corresponding whitespace-separated field in the trace
+message exactly.
+
+\subsection{Execution}
+
+\begin{tabular}{ll}
+{\tt x} {\em cnt} {\tt f} & Execute until {\em cnt} transitions fire\\
+{\tt x} {\em cnt} {\tt i} & Execute for {\em cnt} scheduler iterations\\
+{\tt x} {\em cnt} {\tt t} & Execute for {\em cnt} time units\\
+{\tt x} {\em cnt} {\tt m} & Execute until {\em cnt} traces are accepted\\
+{\tt x} {\em cnt} {\tt l} & Execute for {\em cnt} line number changes\\
+{\tt x} {\em cnt} {\tt x} & Execute for {\em cnt} s-code instructions\\
+{\tt x} {\em cnt} & Execute until {\em cnt} events of last class\\
+{\tt x} & Repeat last execute command\\
+{\tt Enter} & Repeat last execute command\\
+\end{tabular}
+
+\subsection{Channel Control}
+
+\begin{tabular}{ll}
+{\tt ?c} & Lists the known channels\\
+{\tt c} {\em num} {\em delay} {\em reliability} & Changes channel attributes\\
+\end{tabular}
+
+\subsection{Other Commands}
+
+\begin{tabular}{ll}
+{\tt ?} & Shows help\\
+{\tt ??}{\em class} & Shows help on a class of commands\\
+{\tt ?p} & List process IDs of active processes\\
+{\tt ?p} {\em pid} & Shows information about a specific process\\
+{\tt ?t} {\em pid} {\em tnum}& Shows body of a specific transition\\
+{\tt v} & Toggles verbose process identifiers on/off\\
+{\tt d} & Toggles debug trace of transition guard evaluation on/off\\
+{\tt ESC} & Interrupts execution (DOS only at present)\\
+{\tt q} & Exits the interpreter\\
+\end{tabular}
+
+\newpage
+\section{Sample Specification}
+
+\begin{verbatim}
+/* Simple Alternating-Bit example with loopback provider */
+
+system ab_example;
+
+        newtype Packet          /* Dummy data packet definition */
+                array (0) of character;
+        endnewtype
+
+        signal
+                u_data_req(Packet), u_data_rsp, u_data_ind(Packet),
+                p_data_req(Integer,Packet), p_data_ind(Integer,Packet),
+                p_ack_req(Integer), p_ack_ind(Integer);
+
+        channel upper_Ch
+                from User to Protocol
+                        with u_data_req;
+                from Protocol to User
+                        with u_data_ind, u_data_rsp;
+        endchannel upper_Ch;
+
+        channel lower_Ch
+                from Protocol to Provider
+                        with p_data_req, p_ack_req;
+                from Provider to Protocol
+                        with p_data_ind, p_ack_ind;
+        endchannel lower_Ch;
+
+        /* Provider Block */
+
+        block Provider;
+                process ProvControl referenced;
+                signalroute Comm
+                        from ProvControl to env
+                                with p_data_ind, p_ack_ind;
+                        from env to ProvControl
+                                with p_data_req, p_ack_req;
+                connect lower_Ch and Comm;
+        endblock Provider;
+\end{verbatim}
+\newpage
+\begin{verbatim}
+        block Protocol;
+                process ProtControl referenced;
+                signalroute PComm
+                        from ProtControl to env
+                                with p_data_req, p_ack_req;
+                        from env to ProtControl
+                                with p_data_ind, p_ack_ind;
+                signalroute UComm
+                        from env to ProtControl
+                                with u_data_req;
+                        from ProtControl to env
+                                with u_data_ind, u_data_rsp;
+                connect lower_Ch and PComm;
+                connect upper_Ch and UComm;
+        endblock Protocol;
+
+        block User;
+                process UserControl referenced;
+                signalroute Comm
+                        from UserControl to env
+                                with u_data_req;
+                        from env to UserControl
+                                with u_data_ind, u_data_rsp;
+                connect upper_Ch and Comm;
+        endblock User;
+endsystem ab_example;
+
+process system ab_example/block Provider ProvControl(1,1);
+        dcl seq Integer;
+        dcl data Packet;
+        start;
+                nextstate idle;
+        state idle;
+                input p_data_req(seq,data);
+                        output p_data_ind(seq,data);
+                        nextstate -;
+                input p_ack_req(seq);
+                        output p_ack_ind(seq);
+                        nextstate -;
+endprocess;
+\end{verbatim}
+\newpage
+\begin{verbatim}
+process system ab_example/block Protocol ProtControl(1,1);
+        dcl sn Integer;
+        dcl rn Integer;
+        dcl seq Integer;
+        dcl data Packet;
+        dcl tm Duration := 10;
+        timer Timeout;
+        start;
+                task sn := 0;
+                task rn := 0;
+                nextstate idle;
+        state idle;
+                input u_data_req(data);
+                        output p_data_req(sn, data);
+                        set (now + tm, Timeout); 
+                        nextstate wait;
+                input p_ack_ind(seq); /* Do nothing */
+                        nextstate -;
+        state wait;
+                input p_ack_ind(seq);
+                        decision seq = sn;
+                        ( false ) : /* do nothing */
+                                nextstate -;
+                        ( true )  :
+                                task sn := (sn + 1) mod 2;
+                                output u_data_rsp;
+                                nextstate idle;
+                        enddecision;
+                input Timeout;
+                        output p_data_req(sn, data);
+                        set (now + tm, Timeout); 
+                        nextstate -;
+        state *;
+                input p_data_ind(seq, data);
+                        decision seq = rn;
+                        ( false ) : /* do nothing */
+                        ( true )  :
+                                output u_data_ind(data);
+                                output p_ack_req(rn);
+                                task rn := (rn + 1) mod 2;
+                        enddecision;
+                        nextstate -;
+endprocess;
+\end{verbatim}
+\newpage
+\begin{verbatim}
+process system ab_example/block User UserControl(1,1);
+        dcl data Packet;
+        dcl delayWait duration := 3;
+        timer sendDelay;
+        start;
+                nextstate sendfirst;
+        state sendfirst;
+                provided True;
+                        output u_data_req(data);
+                        nextstate idle;
+        state idle;
+                input u_data_rsp;
+                        set (now + delayWait, sendDelay);
+                        nextstate -;
+                input u_data_ind(data); /* consume */
+                        nextstate -;
+                input sendDelay;
+                        output u_data_req(data);
+                        nextstate -;
+endprocess;
+\end{verbatim}
+
+\end{document}

@@ -1,0 +1,1906 @@
+Target for Thursday - complete section D.3 (to pg 79) - done
+	Read chap 4 of Holzman - done
+	Read chap 5 of Holzman - done
+	Done section D.4 (except consistent refinements; I don't
+		think these are relevant to me)
+	Done D.5.1 and D.5.2.
+
+Target for Friday - D.5.3-> (98-118), D.7, D.8 and D.9
+	read D.6, D.10, and D.11
+
+:INTRODUCTION:
+
+SDL (Specification and Description Language), was started in 1972,
+and first standardised in 1976 (CCITT Z.100); like other CCITT standards
+it was reviewed every four years, with major revisions in 1984, 1988, and
+1992 (the CCITT is now the ITU, and the four year cycle has fallen
+away). This document describes SDL88.
+
+SDL can be used for both specification and description (design). It
+concentrates on the *behaviour* of systems, and is considered by some 
+to be the `language of system engineers'. Although it was developed 
+for telecommunication, it has been used for all kinds of interactive 
+and real-time systems based on FSMs. While not intended for 
+implementations, it can be translated to other languages.
+The main differences between implementation and specifications are
+that specifications should:
+
+* give an overview of a complex system
+* postpone implementation decisions
+* not exclude valid implementations
+
+====================================================================
+:FSM MODEL:
+
+The fundamental object in SDL is the <system>, which interacts with
+everything outside itself (the <environment>) if it is an
+<open system>. A system is represented by a number of interconnected
+finite-state machines. A complete specification includes:
+
+* the structure of the system in terms of the machines and their
+	interconnections;
+
+* the dynamic behaviour of each machine in terms of its interactions
+	with the other machines and the environment (via <signal>s);
+	and
+
+* the operations on the data associated with the interactions.
+
+Each finite-state machine has a finite internal state memory and
+operates with a discrete and finite set of inputs and outputs. For
+each combination of input and state, the memory defines an output and
+next state. Transitions are generally regarded as taking zero time,
+although SDL allows for the possibility of non-zero transition times
+as well.
+
+Typically more information is required than just the state (e.g.
+sequence numbers). An FSM may thus be extended with auxiliary storage 
+and operations on that storage.
+
+SDL allows two auxiliary operations to be included within
+transitions, namely <decision>s and <task>s. Decisions provide
+conditional flow of control dependent on the contents of the
+auxiliary memory and the parameters associated with input <signal>s,
+while tasks perform functions such as counting, operating on
+auxiliary memory, and manipulating signal parameters.
+
+The FSMs receive signals as input and generate signals as output. The
+signals are composed of a unique signal identifier and optional set
+of parameters. SDL defines a FIFO queueing mechanism for signals.
+
+=====================================================================
+:environment: THE SYSTEM  ENVIRONMENT
+
+The SDL system contains everything the specification is trying to
+define. The environment, being outside the system, is not defined 
+in SDL.
+
+The system interfaces with the environment through <channel>s. 
+Only a single bidirectional channel is needed to interface to the
+environment; in practise, however, channels are usually defined
+for each logical interface to the environment.
+
+=====================================================================
+:system: SYSTEMS AND SYSTEM INSTANCES
+
+Each system is composed of a number of independent <block>s connected
+by <channel>s; this partitioning is a structuring mechanism. Each
+block may contain one or more <process>es which describe the
+behaviour of the block.
+
+:open system: An open system ...
+
+:system definition: =>
+	{ <textual system definition> }
+        { <remote definition> }*
+
+:remote definition: =>
+	<definition>
+
+:definition: =>
+	  <block definition>
+	| <macro definition>
+	| <block substructure definition>
+	| <channel substructure definition>
+	| <procedure definition>
+	| <process definition>
+	| <service definition>
+
+:textual system definition: =>
+	"system" <system name> <end>
+	  { <block definition>
+	  | <channel definition>
+	  | <data definition>
+	  | <macro definition>
+	  | <select definition>
+	  | <signal definition>
+	  | <signal list definition>
+	  | <textual block reference>
+	  }+
+	"endsystem" [ <system name> ] <end>
+
+At the top level of detail the SDL specification of a system includes
+the following items:
+
+* the <system name>. If a <system name> is present at the end, it
+	must be the same as the one at the beginning. It is recommended
+	that this always be present.
+
+* <signal definition>s - the types of signals interchanged between
+	<block>s and other blocks or the <environment>, including the
+	types of values conveyed by the signals (the <sort list>).
+
+* <signal list definition>s - groups of signals and other
+	<signal list>s which are associated with an identifier for brevity.
+
+* <channel definition>s - <channel>s connecting the blocks of the
+	system to one another and to the environment, including the 
+	identifiers of signals that may be transported by the
+	channel.
+
+* <data definition>s - user-defined <newtype>s, <syntype>s and <generator>s
+	visible in all blocks.
+
+* <block definition>s - the specification of the blocks into which
+	the system is divided.
+
+* <macro definition>s
+
+:end: =>
+	[ "comment" <character string> ] ";"
+
+:textual block reference: =>
+	"block" <block name> "referenced" <end>
+
+In order to simplify the representation of the system structure, a general
+referencing method is provided. At system level this can be applied to
+<block definition>s. This allows just the <block name> to be given within
+the system structure definition; the actual block definition can be given
+separately.
+
+=====================================================================
+:block: BLOCKS
+
+Within a block, processes communicate using signals and shared
+values. The block thus provides a mechanism for grouping processes as
+well as placing bounds on the visibility of data.
+
+:block definition: =>
+	"block" { <block name> | <block ID> } <end>
+	  {   <channel to route connection>
+	    | <data definition>
+	    | <macro definition>
+	    | <process definition>
+	    | <select definition>
+	    | <signal definition>
+	    | <signal list definition>
+	    | <signal route definition>
+	    | <textual process reference>
+	  }*
+	  [   <block substructure definition>
+	    | "substructure" <block substructure name> "referenced" <end>
+	  ]
+	"endblock" [ <block name> | <block ID> ] <end>
+
+The definition of a block may include the following items:
+
+* <block name>
+
+* <signal definition>s - signals interchanged internally within the
+	block and the types of values conveyed.
+
+* <signal list definition>s
+
+* <signal route definition>s
+
+* <channel to route connection>s
+
+* <process definition>s
+
+* <data definition>s - user-defined <newtype>s, <syntype>s and <generator>s
+	visible in all blocks.
+
+* <macro definition>s
+
+Within a block the following types are visible:
+
+* <predefined data types>
+* user-defined data types defined in the block itself
+* user-defined data types visible in the parent block, if any
+
+
+:channel to route connection: =>
+	"connect" <channel ID>
+	"and" <signal route ID> { "," <signal route ID> }* <end>
+
+These specify the connections between the <channel>s external to the
+block and the <signal route>s internal to the block.
+
+
+
+:textual process reference: =>
+	"process" <process name> [ <number of instances> ]
+	"referenced" <end>
+
+This can be used to refer to a <process definition> not explicitly
+defined within the block.
+
+
+
+=====================================================================
+:channel: CHANNELS
+
+Channels connect blocks to each other and the environment, and may be
+uni- or bidirectional. The behaviour of a channel may be formally
+described through partitioning.
+
+Channel definitions included the list of signal identifiers that may
+be communicated via the channel, and as such, form part of the
+interface specifications of blocks.
+
+
+
+:channel definition: =>
+	"channel" <channel name> <channel path> [ <channel path> ]
+	  [   <channel substructure definition>
+	    | "substructure" <name> "referenced" <end>
+	  ]
+	"endchannel" [ <channel name> ] <end>
+
+The definition of a channel includes:
+
+* the channel name
+
+* One or two communication paths, which specify the origin and
+	destination of a list of signals. The origin/destination may be
+	a block identifier or "env" for the environment.
+
+* One or two <signal list>s, specifying, for each communication path,
+	 a list of signals transported in that direction. The list
+	can include signal identifiers as well as identifiers of
+	other lists.
+
+* An optional <channel substructure definition> or a reference to it.
+
+
+
+:channel path: =>
+	{ "from" <block ID> "to" <block ID>
+	| "from" <block ID> "to" "env"
+    	| "from" "env" "to" <block ID>
+	}
+	"with" <signal list> <end>
+
+
+
+:channel endpoint connection: =>
+	"connect" { <block ID> | "env" } 
+	"and" <subchannel ID> { "," <subchannel ID> }*
+	<end>
+
+
+
+:channel connection: =>
+	"connect" <channel ID>
+	"and" <subchannel ID> { "," <subchannel ID> }*
+	<end>
+
+=====================================================================
+:signal: SIGNALS
+
+Signals can be defined at the system level, block level or in the
+internal part of a process definition. Signals defined at a certain
+level can be used at that and lower levels; to simplify each level,
+however, signals should ideally be defined as locally as possible.
+Signals defined within a process definition can be interchanged
+between instances of the same process type or between <service>s
+in the process.
+
+Signals are queued in FIFO order. If two signals arrive at the same
+time the order is arbitrary. It is not possible to assign priorities 
+to signals. For inter-service communication a special mechanism is 
+provided so that signals interchanged between services are handled 
+before other signals.
+
+If transition times are zero, every signal will be consumed at the
+time it arrives at a process, unless the save operation is used.
+
+If signals arrive for which there are no associated transitions, they
+are discarded.
+
+Signals are consumed in the order they arrive unless they are saved.
+Saves can be used to simplify processes where the relative arrival
+order of some signals are not important and the actual arrival order
+is indeterminate.
+
+At every state, every signal is treated in one of the following ways:
+
+* it is an explicit input
+* it is an explicit save
+* it is covered by an implicit input leading to an implicit null 
+	transition
+
+If a signal is covered by a save, it is not considered for input,
+but remains on the queue. The signals on the queue are considered one
+at a time until one with an explicit or implicit input is found, if
+any. A change in state would typically lead the saved signal to be
+later consumed.
+
+SDL provides no bounds on the length of the queue, so saves should be
+used with care.
+
+
+:signal definition: =>
+	"signal"
+	   <signal name> [ <sort list> ] [ <signal refinement> ]
+	   { "," <signal name> [ <sort list> ] [ <signal refinement> ] }*
+	<end>
+
+
+
+:sort list: =>
+	"(" <sort> { "," <sort> }* ")"
+
+<sort name>s used in signal definitions at system level must be
+introduced by <partial type definition>s (that is, <predefined 
+data types> or user-defined <syntypes> or <newtypes>) visible
+at system level.
+
+:signal list definition: =>
+	"signallist" <signal list name> "=" <signal list> <end>
+
+This associates a group of signals and other signal lists with
+an identifier for brevity and convenience.
+
+
+
+:signal list: =>
+	<signal item> { "," <signal item> }*
+
+
+
+:signal item: =>
+	  <signal ID>
+	| <priority signal ID>
+	| "(" <signal list ID> ")"
+	| <timer ID>
+
+
+
+:signal route definition: =>
+	"signalroute" <signal route name>
+	<signal route path> [ <signal route path> ]
+
+These are similar to channels, and can be used at block or process
+level. They can be uni- or bidirectional but cannot be partitioned.
+
+At block level they specify the signal routes connecting the processes
+of the block to one another and to the environment of the block, including 
+the identifiers of signals that may be transported by the signal route.
+
+At process level they can be used when the process is substructured
+into <service>s, in which case they connect services to one another
+or to the signal routes of the process.
+
+When a signal is delivered to a signal route leading to the block
+boundary, it is given to the channel connected to the signal route.
+When a signal arrives at the block from a channel and the channel is
+connected to one or more signal routes, the signal is delivered to
+the signal route able to deliver that signal.
+
+
+
+:signal route path: =>
+	{   "from" <process ID> "to" <process ID>
+	  | "from <process ID> "to" "env" 
+	  | "from "env" "to" <process ID>
+	}
+	"with" <signal list> <end>
+
+
+
+=====================================================================
+:process: PROCESSES
+
+A process instance is either waiting in some state or performing 
+a transition between two states. A transition is initiated by a signal 
+in the input queue (there may be an additional enabling condition).
+
+Processes can exist at the time the system is created, or they
+may be created by create requests within other processes. Similarly,
+processes may live forever, or terminate by performing a <stop>
+action. New processes have equal status to their initiators.
+An explicit process create request may be issued only by another
+process in the same block as the process being created.
+
+When a process is created, process instance values can be determined
+by means of the following predefined expressions:
+
+  OFFSPRING	-  returns the PId value of the last created instance
+  SELF		-  returns the PId value of the process instance itself
+  PARENT	-  returns the PId value of the creating instance
+  SENDER	-  returns the PId value of the process sending the
+			last signal consumed
+
+If a process is created at system creation time, OFFSPRING and PARENT
+return a NUL value.
+
+SDL has exception handling; after a run-time error the future behaviour 
+of the system is undefined.
+
+:process definition: =>
+	"process" { <process name> | <process ID> }
+	  [ <number of instances> ] <end>
+	  [ <formal parameters> <end> ]
+	  [ "signalset" [ <signal list> ] <end> ]
+	  {   <data definition>
+	    | <import definition>
+	    | <macro definition>
+	    | <procedure definition>
+	    | <select definition>
+	    | <signal definition>
+	    | <signal list definition>
+	    | <textual procedure reference>
+	    | <timer definition>
+	    | <variable definition>
+	    | <view definition>
+	  }*
+	  { <process body> | <service decomposition> }
+	"endprocess" { <process name> | <process ID> } <end>
+
+This specifies the process types which describe the behaviour of the
+containing <block>. If the block is not substructured into further
+blocks, there must be at least one process type definition in the
+block. Processes may be specified elsewhere to the block by using 
+<textual process reference>s.
+
+Several instances of the same process type can be created and exist
+at the same time; they execute independently and concurrently.
+
+A process definition may include:
+
+* the process name;
+
+* the <number of instances>;
+
+* the <formal parameter>s;
+
+* the "signalset" <signal list> of valid signal identifiers that may
+	be received by the process;
+
+* the signal definitions of signals that can be exchanged between
+	instances of the same process or between <service>s within the
+	process;
+
+* <procedure definition>s or <textual procedure reference>s of the
+	<procedure>s that may be called by the process;
+
+* <data definition>s - user-defined <newtype>s, <syntype>s and <generator>s
+	visible in all blocks.
+
+* <variable definition>s
+
+* <view definition>s 
+
+* <import definition>s 
+
+* <timer definition>s 
+
+* <macro definition>s
+
+* the <process body>
+
+
+:number of instances: =>
+	"(" [ <natural simple expression> ]
+	"," [ <natural simple expression> ]
+	")"
+
+This is a pair of integers specifying the number of process instances
+created when the system is created (default 1), and the maximum allowed 
+number of simultaneous process instances (default unbounded).
+
+
+:formal parameters: =>
+	"fpar" <variable name> { "," <variable name> }* <sort>
+	  { "," <variable name> { "," <variable name> }* <sort> }*
+
+This is a list of variable identifiers associated with their sorts
+that is used for passing information to the process at creation time.
+In the process creation request a list of <actual parameter>s can be
+provided for this purpose. Values of formal parameters of processes
+created at system creation time are undefined, and should not have
+their values read until they have been assigned to.
+
+
+:import definition: =>
+	"imported" <import name> { "," <import name> }* <sort>
+	  { "," <import name> { "," <import name> }* <sort> }* <end>
+
+This specifies which variables owned by other processes that this
+process wishes to import (read/write access).
+
+
+:textual procedure reference: =>
+	"procedure" <procedure name> "referenced" <end>
+
+
+
+---------------------------------------------------------------------
+VARIABLE DECLARATIONS
+
+:variable definition: =>
+	"dcl"
+	   [   "revealed" | "exported | "revealed" "exported"
+	     | "exported" "revealed"
+	   ]
+	  <variable name> { "," <variable name> }* <sort>
+	    [ ":=" <ground expression> ]
+	  { "," <variable name> { "," <variable name> }* <sort>
+	    [ ":=" <ground expression> ]
+	  }*
+	<end>
+
+This is used to declare the variables belonging to the process.
+Variables may be shared amongst other processes within the same
+block ("revealed") or "exported" to other processes in other blocks. 
+The sort identifier must be given, and an optional initial value can
+also be specified. This can also be done for the sort using the
+"default" statement.
+
+Exporting a variable takes a copy of the variables value; if another
+process imports the variable they are returned the last exported
+value (which may not be the current value).
+
+
+
+:view definition: =>
+	"viewed" 
+	  <variable ID> { "," <variable ID> }* <sort>
+	  { "," <variable ID> { "," <variable ID> }* <sort> }* <end>
+
+This allows variables owned by other processes to be made visible to
+this process (readonly access). The conditions are:
+
+	* both processes must belong to the same block
+	* the process performing the "view" operation must specify
+		the identifier of the viewed variable in the view
+		definition
+	* the process revealing the variable must do so explicitly
+		with the "revealed" attribute
+	* the sort in the view definition must agree with 
+		the variable declaration
+
+
+
+---------------------------------------------------------------------
+:process body: =>
+	"start" <end> <transition> { <state> }*
+
+This is the top-level production for the specification of the actual
+behaviour of the process in terms of states, input, output, task,
+etc. If the process is structured in sub-parts (services), the
+process definition includes a section of <service decomposition>
+instead of the process body.
+
+The specification of the process body always begins with "start"
+followed by a set of actions (<transition>).  The interpretation of a
+process instance begins when the process instance is created.
+
+After the specification of the start action and the optional starting
+transition, the process body includes the definitions of all the
+possible states of the process. Each state definition begins with the
+specification of possible stimuli awaited by the process in that
+state. The possible stimuli are:
+
+	* inputs - signals that can be received
+	* saves - signals that need to be saved for future processing
+	* enabling conditions
+	* continuous signals
+
+Corresponding to each stimulu except saves, a transition must be
+specified, representing the sequence of actions the process will
+perform if that stimulus occurs.
+
+:state: =>
+	"state" <state list> <end>
+	  {   <continuous signal>
+	    | <input part>
+	    | <priority input>
+	    | <save part>
+	    | <spontaneous transition>
+	  }*
+	[ "endstate" [ <state name> ] <end> ]
+
+A state is a point in the process where no actions are being
+performed but where the input queue is monitoring for the arrival of
+incoming signals. based on the signal identifier given in the input
+signal, the arrival of the signal wil cause the process to leave the
+state and perform a specific sequence of actions. A signal which has
+arrived and caused a transition has been `consumed' and ceases to
+exist.
+
+The specification of a state ends either at the following <state>
+statement, or at the process end, or by means of an explicit
+"endstate" keyword.
+
+:state list: =>
+	{ <state name> { "," <state name> }* }
+	| <asterisk state list>
+
+An asterisk can be used to indicate that the following inputs or
+saves and corresponding transitions should be interepreted at every
+state.
+
+
+
+:asterisk state list: =>
+	"*" "(" <state name> { "," <state name> }* ")" ] ??? (prod57)
+
+
+
+:continuous signal: =>
+	"provided" <boolean expression> <end>
+	[ "priority" <integer literal name> <end> ] <transition>
+
+Continuous signals are much like <enabling condition>s except that no
+signal is attached to the condition. Thus when enetering a state with
+no signals in the queue which can cause a transitiojn, the continuous
+signals are checked, and if one is true, the transition following it
+is performed (and SENDER is set to SELF).
+
+As with enabling conditions, the value is checked only when in the
+state. Multiple continuous signals are allowed for each state, in
+which case the signals must have priorities. The continuous signal
+with the highest priority (lowest value) will be selected first. Note
+that continuous signals have lower priorities than any other signals.
+
+
+:input part: =>
+	"input" <input list> <end>
+	[ <enabling condition> ] <transition>
+
+
+
+:input list: =>
+	  "*"
+	| <stimulus> { "," <stimulus> }*
+
+
+
+:stimulus: =>
+	{ <signal ID> | <timer ID> }
+	[ "(" [ <variable ID> ] { "," [ <variable ID> ] }* ")" ]
+
+The input list specifies the signal or timer events to consume, and
+may include variable IDs if signal arguments are to be used. The
+variable IDs are assigned the parameter values on a positional basis,
+and must have types corresponding to the signal formal arguments.
+If a signal argument is not needed no variable ID need be given, but
+the comma separator is still required.
+
+Note that the same transition may be triggered by more than one
+<stimulus>.
+
+
+:enabling condition: =>
+	"provided" <boolean expression> <end>
+
+If the condition is false, the signal is saved and the process
+remains in the state until either another signal arrives or the
+condition changes from false to true.
+
+The enabling condition is tested when the process arrives in the
+state and is continuously tested while the process remains in the
+state. Enabling conditions can be based on local variables and/or any
+language construct that may be included in an expression.
+
+It is not allowed to use more than one enabling condition for the
+same signal, but is allowed for the same state.
+
+As the enabling condition can be evaluated many times in any order
+the expression should avoid side-effects.
+
+The signal specified in the enabling condition cannot influence the
+condition as its transported values are not assigned until signal
+consumption occurs.
+
+
+:save part: =>
+	"save" <save list> <end>
+
+
+
+:save list: =>
+	<signal list> | "*"
+
+
+----------------------------------------------------------------------
+TRANSITIONS
+
+:spontaneous transition: =>
+	"input" "none" <end>
+	[ <enabling condition> ] <transition>
+
+:transition: =>
+	[ <transition string> ] 
+	[ <label> ]
+	{   <decision>
+	  | "join" <connector name>
+	  | <nextstate>
+	  | <nondeterministic decision>
+	  | <return>
+	  | <transition option>
+	  | "stop" }
+	<end>
+
+:transition string: =>
+	{ [ <label> ]
+	  {   <create request>
+	    | <export>
+	    | <output>
+	    | <priority output>
+	    | <procedure call>
+	    | <reset>
+	    | <set>
+	    | <task>
+	  }
+	  <end>
+	}+
+
+The  possible actions performed in a transition are:
+
+	<task>		variable assignment or informal text
+	<export>	variable export
+	<set>		activate a timer
+	<reset>		restart a timer
+	<output>	send a <signal> to another <process>
+	<create request>	create an instance of the specified
+				process type
+	<decision>	select from a set of actions depending on	
+				a <question>
+	<procedure call>
+	<join>		`jump' to another set of actions; mostly used
+				for simplifying SDL/GR layout.
+
+A transition may end with:
+
+	<nextstate>	the state the process should assume
+	"stop"		immediate halt of the process instance. Any
+				signals not yet processed by the
+				process are discarded.
+
+During a transition, a process does not know explicitly which input
+signal caused the transition; this can only be inferred from context.
+
+
+
+
+:create request: =>
+	"create" <create body>
+
+
+
+:create body: =>
+	<process ID> [ <actual parameters> ]
+
+
+
+:actual parameters: =>
+	"(" [ <expression> ] { "," [ <expression> ] }* ")"
+
+
+
+:export: =>
+	"export" "(" <variable ID> { "," <variable ID> }* ")"
+
+
+----------------------------------------------------------------------
+SENDING SIGNALS
+
+:output: =>
+	"output" <output body>
+
+:output body: =>
+	<signal ID> [ <actual parameters> ]
+	[ "," <signal ID> [ <actual parameters> ] }*
+	[ "to" <PId expression> ]
+	[ "via" { <signal route ID> { "," <signal route ID> }*
+		| { <channel ID> { "," <channel ID> }* } ]
+
+An output is the sending of a signal from one process to another (or
+itself). Values may be associated with an output signal by placing
+expressions having values of the appropriate sorts within
+parentheses. Omitted values have the value `undefined' in the
+receiver.
+
+If the destination process instance can be uniquely determined from
+the context the "to" clause can be omitted. An additional addressing 
+condition can be done with the "via" clause.
+
+----------------------------------------------------------------------
+TIMERS
+
+:timer definition: =>
+	"timer" <timer name> [ <sort list> ]
+	  { "," <timer name> [ <sort list> ] }* <end>
+
+In SDL timers are meta-processes that are able to send signals to the
+process upon request. The use of timers must be declared in the
+<timer definition> with <process definition>s. The operations <set>
+and <reset> are used to activate timers.
+
+:set: =>
+	"set" "(" <time expression> "," <timer ID>
+		[ "(" <expression list> ")" ]
+		{ "," "(" <time expression> "," <timer ID>
+		  [ "(" <expression list> ")" ]	")" }* ")"
+
+This requests a timeout to occur at a specific time. It implicitly
+first does a reset. Included are the <time expression> of the
+requested delay, the <timer ID> of the timer, and an optional list of
+expressions which, if present, will be contained in the timer signal
+in the same order.
+
+The time expression is evaluated and added to the primitive function
+"now" (the current time) to get the timeout time. The expression
+should evaluate to a value of the predefined sort "time", which is
+inherited from the "real" sort.
+
+The possibility of receiving a timeout is specified by means of the
+timer name in an <input>.
+
+<synonym>s can be defined to represent common durations, such as a
+second.
+
+The setting of a timer to an already passed time is allowed but
+should be avoided.
+
+:reset: =>
+	"reset" "(" <timer ID> [ "(" <expression list> ")" ]
+		{ "," <timer ID> [ "(" <expression list> ")" ] }* ")"
+
+This cancels a timeout request. If the list of expressions is given,
+it will reset the particular instance of the timer having the same
+values.
+
+----------------------------------------------------------------------
+TASKS
+
+:task: =>
+	"task" <task body>
+
+:task body: =>
+	{ <assignment statement> { "," <assignment statement> }* }
+	| { <informal text> { "," <informal text> }* }
+
+:assignment statement: =>
+	<variable> ":=" <expression>
+
+:informal text: =>
+	<character string>
+
+A task is used in a transition to represent operations on variables
+or to represent special operations by means of informal text.
+
+:variable: =>
+	  <variable ID>
+	| <variable> "(" <expression list> ")"
+	| <variable> { "!" <field name>
+		       | <field name> { "," <field name> }* ")" }
+
+
+
+
+
+----------------------------------------------------------------------
+DECISIONS
+
+:decision: =>
+	"decision" <question> <end>
+	  { { <answer part> <else part> }
+	    | { <answer part> { <answer part> }+ [ <else part>]  } }
+	"enddecision"
+
+:question: =>
+	<question expression> | <informal text>
+
+:answer part: =>
+	"(" <range condition> | <informal text> ")" ":" [ <transition> ]
+
+:else part: =>
+	"else:" [ <transition> ]
+
+:nondeterministic decision: =>
+	"decision" "any" <end>
+	  "(" ")" ":" [ <transition> ]
+	  { "(" ")" ":" [ <transition> ] }+
+	"enddecision"
+
+A decision is an action within a transition that proceeds to one of
+two or more paths depending on the answer to a question at the
+instant of execution. 
+
+The question may be an expression or informal text; the answers may
+be one or more possible values obtained from evaluating the
+expression, or one or more informal texts. If the question or any of
+the answers is informal, the whole decision is informal.
+
+The values are represented by constant expressions, possibly with a
+prefix operator, or by ranges with constant expressions for upper and
+lower bounds. The answer values must have the same sort as the
+question expression.
+
+The "else" clause can be used to handle all cases not explicitly
+dealt with.
+
+Decision can be made using any values available to the process,
+including:
+
+	* values received by an input
+	* actual parameters passed at process creation time
+	* shared values
+
+
+----------------------------------------------------------------------
+
+:nextstate: =>
+	"nextstate" <nextstate body>
+
+:nextstate body: =>
+	<state name> | "-"
+
+A <nextstate> statement terminates execution of the current
+transition and transfers to the specified state. A dash
+signifies that the state does not change.
+
+=====================================================================
+:procedure: PROCEDURES
+
+:procedure definition: =>
+	"procedure" { <procedure name> | <procedure ID> }
+	<end>
+	[ <procedure formal parameters> <end> ]
+	{   <data definition>
+	  | <macro definition>
+	  | <procedure definition>
+	  | <select definition>
+	  | <textual procedure reference>
+	  | <variable definition>
+	}*
+	<process body>
+	"endprocedure" { <procedure name> | <procedure ID> }
+	<end>
+	
+A procedure definition may only be contained in a process, service or
+procedure definition, and therefor a procedure is visible only to the
+process or procedure in which it is defined.
+
+A procedure definition may contain the following:
+
+* the name
+
+* the <procedure formal parameters>
+
+* <procedure definition>s of procedures that can be called only by
+	this procedure itself
+
+* <data definition>s of datatypes local to the procedure
+
+* <variable definition>s of variables local to within the procedure;
+
+* the procedure body which is the same as a process body, except
+	that it terminates with a "return" rather than a "stop".
+
+:procedure formal parameters: =>
+	"fpar" [ "in/out" | "in" ] <variable name>
+		 { "," <variable name> }* <sort>
+	{ "," [ "in/out" | "in" ] <variable name>
+		 { "," <variable name> }* <sort>
+	}*
+
+A list of variable names and their sorts. Procedure parameters can be
+passed by value ("in" parameters) or by reference ("in/out"
+parameters). 
+
+:return: =>
+	"return"
+
+:procedure call: =>
+	"call" <procedure call body>
+
+:procedure call body: =>
+	<procedure ID> [ <actual parameters> ]
+
+Procedure calls may occur wherever a task is allowed in either a
+process or a procedure graph. In some sense, a procedure can be
+interpreted as a task with the following exceptions:
+
+	* a procedure may contain states, and if so, will
+		receive signals
+	* a procedure can send signals
+
+When a procedure is called, the procedure environment is created and
+the procedure begins to be interepreted; this continues until the
+"return" is reached. In the interim, all signals addressed to the
+process are ither implicitly saved or explicitly handled by the
+procedure. The procedure does not have its own input queue but uses
+that of the process that called it.
+
+As in process creation, parameters may be omitted in the procedure
+call and will be undefined in the procedure until assigned to.
+
+=====================================================================
+:macro: MACROS
+
+Macro definitions can be given at all places where data definitions
+are allowed. However, a macro name has no scope and can be referenced
+outside the containing block.
+
+In SDL/PR a macro definition can replace any sequence of lexical
+units.  The folowing restrictions must be applied to map SDL/PR to
+SDL/GR:
+
+1) a macro can only replace one or more of the following syntactic
+   constructs of SDL/GR:
+	- start
+	-state
+	-input
+	- enabling condition
+	- continuous signal
+	- save
+	- action statement
+	- terminator statement
+
+2) macro formal parameters may not be used in places that determine
+   the type of SDL/PR construct. That is, it must not be used where
+   the SDL/PR keywords would be used. Similarly, actual parameters
+   should not contain keywords which correspond to SDL/GR symbols:
+   START, STATE, PROCEDURE, INPUT, TASK, OUTPUT, DECISION, CREATE, STOP,
+   PROVIDED, CALL, COMMENT, JOIN, RETURN, SAVE or OPTION.
+
+3) Every statement in teh macro definition must be reachable from at
+   least one macro inlet.
+
+In SDL/PR a macro always has at most one inlet and one outlet, so
+that it is necessary to use labels and joins to represent, in SDL/PR,
+an SDL/GR macro with more than one inlet or outlet respectively. If
+the macro is to be invoked from more than one place, the labels must
+be passed as parameters.
+
+In the case of nested macros, the expansion of the outermost macros
+does not affect the expansion of the innermost ones; i.e. macros are
+expanded from outermost to innermost in this case.
+
+
+
+:macro definition: =>
+	"macrodefinition" <macro name>
+	[ <macro formal parameters> ] <end>
+	<macro body>
+	"endmacro" [ <macro name> ] <end>
+
+:macro formal parameters: =>
+	"fpar" <name> { "," <name> }*
+
+:macro body: =>
+	{ <lexical unit> | <formal name> }*
+
+:formal name: =>
+	[ <name> "%" ] { <name> | "macroid" }
+	{ "%"<name>"%" { <name> | "macroid" } | "%" { <name> | "macroid" } }*
+	[ "%" <name> ]
+
+:macro call: =>
+	"macro" <macro name>
+	[ "(" <macro actual parameter> { "," <macro actual parameter> }* ")" ]
+	<end>
+
+:macro actual parameter: =>
+	{ <lexical unit> }*
+
+
+=====================================================================
+OPTION
+
+In SDL it is possible to define different systems in a single
+specification by means of the system parameters. System parameters
+are actually external synonyms that can be used in every place a
+synonym can. SDL provides two additional constructs to allow more
+powerful selections conditioned by external synonyms:
+
+- the select construct, which allows conditional selection of a piece
+  of specification (like conditional compilation)
+
+- the alternative construct, which allows the conditional selection
+  of one piece of specification between two or more alternative pieces,
+  used to select different transitions in the bodies of processes,
+  procedures or services.
+
+:external synonym definition: =>
+	"synonym" <external synonym name> <predefined sort> "=" "external"
+
+:select definition:
+	"select" "if" "(" <boolean simple expression> ")" <end>
+	{
+	    <block definition>
+	  | <channel connection>
+	  | <channel definition>
+	  | <channel endpoint connection>
+	  | <channel to route connection>
+	  | <data definition>
+	  | <import definition>
+	  | <macro definition>
+	  | <procedure definition>
+	  | <process definition>
+	  | <select definition>
+	  | <service definition>
+	  | <service signal route definition>
+	  | <signal definition>
+	  | <signal list definition>
+	  | <signal route connection>
+	  | <signal route definition>
+	  | <textual block reference>
+	  | <textual procedure reference>
+	  | <textual process reference>
+	  | <textual service reference>
+	  | <timer definition>
+	  | <variable definition>
+	  | <view definition>
+	}+
+	"endselect" <end>
+
+:transition option:
+	"alternative" <alternative question> <end>
+	{ <answer part> <else part>
+	| <answer part> { <answer part> }+ [ <else part> ]
+	}
+	"endalternative"
+
+:alternative question: =>
+	<simple expression> | <informal text>
+
+=====================================================================
+:service: SERVICE
+
+:service decomposition: =>
+	{   <select definition>
+	  | <service definition>
+	  | <service signal route definition>
+	  | <signal route connection>
+	  | <textual service reference>
+	}+
+
+:service signal route definition: =>
+	"signalroute" <service signal route name>
+	<service signal route path>
+	[ <service signal route path> ]
+
+:service signal route path: =>
+	{ "from" <service ID> "to" <service ID>
+	| "from" <service ID> "to" "env"
+	| "from" "env" "to" <service ID>
+	}
+	"with" <signal list> <end>
+
+:signal route connection: =>
+	"connect" <signal route ID>
+	"and" <service signal route ID>
+	{ "," <service signal route ID> }* <end>
+
+:textual service reference: =>
+	"service" <service name> "referenced" <end>
+
+:service definition: =>
+	"service" { <service name> | <service ID> } <end>
+	[ "signalset" [ <signal list> ] <end> ]
+	{   <data definition>
+	  | <import definition>
+	  | <macro definition>
+	  | <procedure definition>
+	  | <select definition>
+	  | <textual procedure reference>
+	  | <timer definition>
+	  | <variable definition>
+	  | <view definition>
+	}*
+	<process body>
+	"endservice" [ { <service name> | <service ID> } ] <end>
+
+:priority input: =>
+	"priority" "input" <priority input list> <end> <transition>
+
+:priority input list: =>
+	<priority signal ID>
+	[ "(" [ <variable ID> ] { "," [ <variable ID> ] }* ")" ]
+	{ "," <priority signal ID>
+	  [ "(" [ <variable ID> ] { "," [ <variable ID> ] }* ")" ] }*
+
+:priority output: =>
+	"priority" "output" <priority output body>
+
+:priority output body: =>
+	<priority signal ID> [ <actual parameters> ]
+		{ "," <priority signal ID> [ <actual parameters> ] }*
+
+=====================================================================
+DATA TYPES
+
+:data definition: =>
+	{ <partial type definition>
+	| <syntype definition>
+	| <synonym definition>
+	| <generator definition>
+	}
+	<end>
+
+:partial type definition:
+
+:quoted operator: =>
+	  """ <infix operator> """
+	| """ <monadic operator> """
+
+:infix operator: =>
+	"=>" | "or" | "xor" | <relop> | "+" | "/" | "//" | "mod" | "rem" | "-"
+
+:monadic operator: =>
+	"-" | "not"
+
+:syntype definition:
+:synonym definition:
+:generator definition:
+
+:predefined sort: =>
+	<sort>
+
+:sort: =>
+	<sort ID> | <syntype ID>
+
+:range condition: =>
+	{ <closed range> | <open range> }
+	{ "," { <closed range> | <open range> } }*
+
+:closed range: =>
+	 <ground expression> ":" <ground expression>
+
+:open range: =>
+	  <ground expression>
+	| { <relop> } <ground expression>
+
+=====================================================================
+:predefined data types: PREDEFINED DATA TYPES
+
+The following data types are predefined:
+
+:INTEGER:
+
+:REAL:
+
+:CHARACTER:
+
+:STRING:
+
+:CHARSTRING:
+
+:BOOLEAN:
+
+:PID:
+
+:TIME:
+
+:DURATION:
+
+=====================================================================
+EXPRESSIONS
+
+Expressions in an SDL process can be used as formal text in
+decisions, alternatives, selects, tasks, continuous signals, enabling
+conditions, and set constructs. They are also used as actual
+parameters of the "output", procedure calls, and the creation construct.
+PId expressions are used in the TO part of the output construct. The
+expressions in the alternative and select constructs (statically
+evaluated) should be of predefined data sorts. In an expression there
+can be ground terms (i.e. terms containing only representations of
+constant values) and terms with variables.
+
+SDL has a predefined set of infix operators of fixed precedence,
+which may be used for any data type. SDL also provides two unary
+prefix operators, namely "-" and "not". All other operators defined
+by the user are functions and must be used in prefix notation.
+
+:simple expression: =>
+	<ground expression>
+
+:expression: =>
+	  <op0>
+	| <expression> "=>" <op0>
+
+:op0:
+	  <op1>
+	| <op0> { "or" | "xor" } <op1>
+	
+:op1:
+	  <op2>
+	| <op1> "and" <op2>
+	
+:op2:
+	  <op3>
+	| <op2> { <relop> | "in" } <op3>
+	
+:op3:
+	  <op4>
+	| <op3> { "+" | "-" | "//" } <op4>
+	
+:op4:
+	  <op5>
+	| <op4> { "*" | "/" | "mod" | "rem" } <op5>
+	
+:op5:
+	{ "-" | "not" } <primary>
+	
+:primary: =>
+	  <ground primary>
+	| <extended primary>
+	| <active primary>
+
+:ground primary: =>
+	  <literal operator ID>
+	| [ <qualifier> ] <character string>
+	| <generator formal name>
+	| { <operator ID> | [ <qualifier> ] <quoted operator> }
+		"(" <ground expression> { "," <ground expression> }* ")"
+	| "(" <ground expression> ")"
+	| <conditional ground expression>
+
+:conditional ground expression: =>
+	"if" <boolean ground expression>
+	"then" <ground expression>
+	"else" <ground expression>
+	"fi"
+
+:extended primary: =>
+	  <synonym ID> | <external synonym ID>
+	| <primary> "(" <expression list> ")"
+	| <primary> { "!" <field name> | 
+			"(" <field name> { "," <field name> }* ")" }
+	| [ <qualifier> ] "(." <expression list> ".)"
+
+:expression list: =>
+	<expression> { "," <expression> }*
+
+:active primary: =>
+	  <variable ID>
+	| <operator application>
+	| <conditional expression>
+	| <imperative operator>
+	| "(" <active expression> ")"
+	| <active extended primary>
+
+:active extended primary: =>
+	<extended primary>
+
+:operator application: =>
+	{ <operator ID> | [ <qualifier> ] <quoted operator> }
+	  "(" <active expression list> ")"
+
+:active expression list: =>
+	  <active expression> [ "," <expression list> ]
+	| <ground expression> "," <active expression list>
+
+:boolean active expression: =>
+	<active expression>
+
+:active expression: =>
+	<expression>
+
+:conditional expression: =>
+	  "if" <boolean active expression>
+	  "then" <expression>
+	  "else" <expression>
+	  "fi"
+	| "if" <boolean expression>
+	  "then" <active expression>
+	  "else" <expression>
+	  "fi"
+	| "if" <boolean expression>
+	  "then" <expression>
+	  "else" <active expression>
+	  "fi"
+
+:imperative operator: =>
+	  "active" "(" <timer ID> [ "(" <expression list> ")" ] ")"
+	| "any" "(" <sort> ")"
+	| "import" "(" <import ID> [ "," <PId expression> ] ")"
+	| "now"
+	| "offspring"
+	| "parent"
+	| "self"
+	| "sender"
+	| "view" "(" <variable ID> [ "," <PId expression> ] ")"
+
+:boolean simple expression: =>
+	<simple expression>
+
+:boolean expression: =>	
+	<expression>
+	  
+:PId expression: =>
+	<expression>
+	
+:boolean ground expression: =>
+	<ground expression>
+
+:ground expression: =>
+	<expression>
+
+:question expression: =>
+	<expression>
+
+:time expression: =>
+	<expression>
+
+:natural simple expression: =>
+	<simple expression>
+
+:relop: =>
+	"=" | "/=" | "<" | "<=" | ">" | ">=" 
+
+=====================================================================
+COMMENTS
+--------
+
+SDL supports two types of comments. The first type are like `C'
+comments, delimted by /* */. They may occur anywhere a space may
+occur, and are treated as such. They may not be nested.
+
+Alternatively, the keyword "comment" can be used, followed by a
+character string; this may occur anywhere a task statement may occur
+or before any semicolon at the end of a statement.
+
+----------------------------------------------------------------------
+JOINS, CONNECTORS AND LABELS
+
+:transition: =>
+	[ <transition string> ] 
+	[ <label> ]
+	{   ...
+	  | "join" <connector name>
+	  | ... }
+	<end>
+
+:transition string: =>
+	{ [ <label> ]
+	  ...
+	  <end>
+	}+
+
+:label: =>
+	<connector name>
+
+Joins allow control to be transferred from one point to another of a
+process body, as well as inside a procedure body or service body;
+they are thus much like "goto" statements, with labels used as entry
+points. It is not allowed to associate labels as entry points to the
+following statement types:
+
+	* state
+	* endstate
+	* input	
+	* save
+	* enddecision
+
+Labels are local to a process.
+
+---------------------------------------------------------------------
+QUALIFIERS
+
+These are used to refer to items in a specification where the name
+does not determine the item uniquely, or when remote definitions are
+used.
+
+:qualifier: =>
+	<path item> { "/" <path item> }*
+
+:path item: =>
+	<scope unit class> <name>
+
+:scope unit class: =>
+	  "block"
+	| "procedure"
+	| "process"
+	| "service"
+	| "signal"
+	| "substructure"
+	| "system"
+	| "type"
+
+=====================================================================
+STRUCTURING AND REFINING SYSTEMS
+
+Partitioning is the subdivision of a system into smaller parts whose
+global behaviour is equivalent to the unpartitioned system. It can be
+applied to blocks (structuring them in new subblocks, channels and
+subchannels), to channels (structuring them in blocks, new channels
+and subchannels), and to processes (structuring them in services).
+
+Refinement is the addition of new details to the system
+functionalities.
+
+The minimum structure of a system in SDL is a system consisting of a
+set of blocks connected by channels and containing processes.
+The criteria leading to a partition of a system are several,
+including:
+
+a) to define blocks/processes of manageable size;
+b) to create a correspondence with actual hardware/software
+   divisions;
+c) to follow natural functional subdivisions;
+d) to minimise interaction between blocks;
+e) to reuse alraedy existing specifications.
+
+
+Block Partitioning
+------------------
+
+:block substructure definition: =>
+	"substructure" { [ <block substructure name> ] |
+			   <block substructure ID> } <end>
+	  {   <block definition>
+	    | <channel connection>
+	    | <data definition>
+	    | <macro definition>
+	    | <select definition>
+	    | <signal definition>
+	    | <signal list definition>
+	    | <textual block reference>
+	  }+
+	"endsubstructure" { [ <block substructure name> |
+			   <block substructure ID> ] } <end>
+
+
+A block can be partitioned into a set of blocks and channels much
+like a system; in SDL/PR this is done with a set of definitions
+bounded by "substructure" and "endsubstructure".
+
+Inside a block definition the specification of processes and of a
+block substructure may coexeist. In this case the processes of the
+blcok represent the behaviour of the block at a certain level of
+deatil; other processes inside subblocks will represent the same
+behaviour in more detailed ways.
+
+Unless signal refinement si used, block partitioning must obey the
+rules:
+
+1) The subchannels connected to an incoming channel mcut contain no
+   new signals in their signal lists and their signal lists must contain
+   all the signals in the original channel list;
+
+2) The subchannels connected to an outgoing channel must contain no
+   new signal names in their signal lists and their signal lists must
+   contain all the signal names in the original channel;
+
+3) If the original block contains processes, two options are
+   available: a copy of each process can be redefined in one or other of
+   the new subblocks, or new processes can be defined in the subblocks
+   in such a way that the interface remains unchanged.
+
+4) data definitions in the parent block are available to its
+   subblocks, so that each of them can use a data type defined in the
+   parent block without having to redefine it.
+
+5) If a datatype defined in the parent block is redefined with the
+   same name in a subblock, the new definition applies to the defining
+   subblock while the old one holds for the other subblocks.
+
+
+Channel Partitioning
+--------------------
+
+:channel substructure definition: =>
+	"substructure" { [ <channel substructure name> ] |
+			   <channel substructure ID> } <end>
+	  {   <block definition>
+	    | <channel definition>
+	    | <channel endpoint connection>
+	    | <data definition>
+	    | <macro definition>
+	    | <select definition>
+	    | <signal definition>
+	    | <signal list definition>
+	    | <textual block reference>
+	  }+
+	"endsubstructure" { [ <channel substructure name> |
+			   <channel substructure ID> ] } <end>
+
+
+A channel can be partitioned independently of the blocks it connects.
+This allows for the representation of the behaviour of the channel.
+To get an exact representation of the way a signal is conveyed, it
+may be necessary to represent the channel behaviour, by considering
+the channle as an item of its own having as environment the two
+blocks it connects. The channel structure can be shown in terms of
+blocks, channels and processes.
+
+The channel substructure definition is similar to that for a block
+except that in the "connect" statement the endpoint subchannels are
+connected to the external blocks and not the external channels.
+
+Import/export of values is allowed between a block and a channel
+substructure, which allows a straightforward representation of the
+OSI model, where peer layer communication is modelled through signal
+interchange and contiguous layer communication through shared values.
+
+
+Refinement
+----------
+
+:signal refinement: =>
+	"refinement"
+	  { [ "reverse" ] <signal definition> }+
+	"endrefinement"
+
+
+This allows signals to be partitioned into subsignals in a
+hierachical structure. The refinement is tightly related to the block
+partitioning because only those signals transported by a channel
+connected to a partitioned block can be refined. That is, a signal
+contained in the list of a channel may be replaced by its subsignals
+when the connected block is partitioned. The correspondent
+subchannels generated in the partitioning of the block will specify
+the subsignals in their signal lists.
+
+When a signal is defined to be carried by a channel, the channel
+automatically will be carrier for all the subsignals of the signal,
+even if some of the subsignals are flowing in the opposite direction
+(in this case the channel is regarded as implicitly bidirectional).
+
+Some real cases in which the refinement concept can be applied
+include the following:
+
+- name transformation - a signal is refined into another signal with
+  a different name (i.e. one-to-one transformation);
+
+- splitting transformation - a one-to-many transformation where one
+  signal is split into several signmals as a result of a
+  characterisation (e.g. a generic error signal being split into
+  specific error signals);
+
+- algorithm transformation - the original signal is transformed into
+  a set of signals that activate an algorithm in order to provide the
+  original information.
+
+
+
+=====================================================================
+:LEXICAL RULES:
+
+:lexical unit: =>
+	  <character string>
+	| <composite special>
+	| <keyword>
+	| <name>
+	| <note>
+	| <special>
+
+Names may consist of a single word or a list of words separated by
+underscore (strictly speaking the underscore is only required in
+cases of ambiguity, but for machine lexical analysis it is required).
+
+The underscore character can also be used as a continuation character
+allowing the splitting of a name over more than one line. In this
+case the terminal underscores are deleted before assembling the name.
+That is:
+
+	CONNECT_ ME is the same as CONNECT_ME
+
+while
+	CONNECT_
+	ME
+is the same as CONNECTME.
+
+:block name: => <name>
+:block substructure name: => <name>
+:channel name: => <name>
+:channel substructure name: => <name>
+:connector name: => <name>
+:external synonym name: => <name>
+:field name: => <name>
+:generator formal name: => <name>
+:import name: => <name>
+:integer literal name: => <name>
+:macro name: => <name>
+:procedure name: => <name>
+:process name: => <name>
+:service name: => <name>
+:service signal route name: => <name>
+:signal list name: => <name>
+:signal name: => <name>
+:signal route name: => <name>
+:state name: => <name>
+:system name: => <name>
+:timer name: => <name>
+:variable name: => <name>
+
+:name: => <word> { "_" <word> }*
+
+:word: => { <alphanumeric> | "." }*
+	  <alphanumeric>
+	  { <alphanumeric> | "." }*
+
+:alphanumeric: =>
+	  <decimal digit>
+	| <letter>
+	| <national>
+
+:decimal digit: =>
+	"0" | ... | "9"
+
+:letter: =>
+	"A" | ... | "Z" | "a" | ... | "z"
+
+:national: =>
+	"#" | "`" | "@" | "[" | "\" | "]" | "{" | "|" | "}" | "~" | "^"
+
+:character string: =>
+	"'"
+	{
+	  <alphanumeric>
+	| "." | "?" | "&" | "%" | " " | <special> | "_" | "''"
+	}
+	"'"
+
+:special: =>
+	  "+" | "-" | "!" | "/" | "<" | ">" | "*" | "(" | ")" | """ | ","
+	| ";" | "=" | ":"
+
+:composite special: =>
+	  "==" | "==>" | "/=" | "<=" | ">=" "//" | ":=" | "=>" | "->"
+	| "(." | ".)"
+
+:note: =>
+	"/*" <text> "*/"
+
+:text: =>
+	<alphanumeric> | "'" | "." | "&" | "?" | "%" | " " | "_" | <special>
+
+:keyword: =>
+	  "active"
+	| "adding"
+	| "all"
+	| "altenative"
+	| "and"
+	| "any"
+	| "axioms"
+	| "block"
+	| "call"
+	| "channel"
+	| "comment"
+	| "conect"
+	| "constant"
+	| "constants"
+	| "create"
+	| "dcl"
+	| "decision"
+	| "default"
+	| "else"
+	| "endalternative"
+	| "endblock"
+	| "endchannel"
+	| "enddecision"
+	| "endgenerator"
+	| "endmacro"
+	| "endnewtype"
+	| "endprocedure"
+	| "endprocess"
+	| "endrefinement"
+	| "endselect"
+	| "endservice"
+	| "endstate"
+	| "ensubstructure"
+	| "endsyntype"
+	| "endsystem"
+	| "env"
+	| "error"
+	| "export"
+	| "exported"
+	| "external"
+	| "fi"
+	| "for"
+	| "fpar"
+	| "from"
+	| "generator"
+	| "if"
+	| "import"
+	| "imported"
+	| "in"
+	| "inherits"
+	| "input"
+	| "join"
+	| "literals"
+	| "macro"
+	| "macrodefinition"
+	| "macroid"
+	| "map"
+	| "mod"
+	| "nameclass"
+	| "newtype"
+	| "nextstate"
+	| "none"
+	| "not"
+	| "now"
+	| "offspring"
+	| "operator"
+	| "operators"
+	| "or"
+	| "ordering"
+	| "out"
+	| "output"
+	| "parent"
+	| "priority"
+	| "procedure"
+	| "process"
+	| "provided"
+	| "referenced"
+	| "refinement"
+	| "rem"
+	| "reset"
+	| "return"
+	| "revealed"
+	| "reverse"
+	| "save"
+	| "select"
+	| "self"
+	| "sender"
+	| "service"
+	| "set"
+	| "signal"
+	| "signallist"
+	| "signalroute"
+	| "signalset"
+	| "spelling"
+	| "start"
+	| "state"
+	| "stop"
+	| "struct"
+	| "substructure"
+	| "synonym"
+	| "syntype"
+	| "system"
+	| "task"
+	| "then"
+	| "timer"
+	| "to"
+	| "type"
+	| "via"
+	| "view"
+	| "viewed"
+	| "with"
+	| "xor"
+
+:block ID: => <identifier>
+:block substructure ID: => <identifier>
+:channel ID: => <identifier>
+:channel substructure ID: => <identifier>
+:external synonym ID: => <identifier>
+:import ID: => <identifier>
+:literal operator ID: => <identifier>
+:operator ID: => <identifier>
+:priority signal ID: => <identifier>
+:procedure ID: => <identifier>
+:process ID: => <identifier>
+:service ID: => <identifier>
+:service signal route ID: => <identifier>
+:signal list ID: => <identifier>
+:signal ID: => <identifier>
+:signal route ID: => <identifier>
+:sort ID: => <identifier>
+:subchannel ID: => <identifier>
+:synonym ID: => <identifier>
+:syntype ID: => <identifier>
+:timer ID: => <identifier>
+:variable ID: => <identifier>
+
+:identifier: =>
+	[ <qualifier> ] <name>
+
+

@@ -1,0 +1,130 @@
+Hi Pieter
+
+The broad technical aims of the project seem to be:
+
+  - an SDL compiler
+  - an interpreter for the compiled specifications
+  - a control and postanalysis tool for driving performance analyses,
+	test scenarios, conformance tests, etc.
+
+Additional, related tools are (or could be):
+
+  - a graphical SDL front end
+  - other types of GUI front-ends
+  - a time-sequence diagram editor for conformance testing
+  - a verification engine
+  - a code generation engine (using UNIX sockets, or STREAMS)
+  - Petri-net tools
+
+In order to develop a powerful toolset it is important that 
+various principals and techniques of software engineering be
+applied. In terms of development, this implies that we need
+techniques to develop industrial strength, portable, re-useable
+code. As a result I propose that:
+
+  - all development take place in C++
+
+  - it may be appropriate to purchase C++ class libraries to expedite
+	development. In particular, there are portable C++ application
+	frameworks available which provide GUI-independent object-
+	oriented user interface libraries. This allows applications to
+	be compiled without change for UNIX, DOS, OS/2, MacIntosh, 
+	Windows, and Windows NT.
+
+  - all development follows a set of coding guidelines which I
+	would like to lay down. These guidelines will encourage the
+	development of consistent, high quality, robust code.
+
+It is also important to decouple control of underlying engines
+from user-interfaces. Underlying engines (such as the SDL interpreter)
+should be objects which respond to messages requesting services.
+This will allow the user-interfaces to be separate entities, which
+translate user requests to messages to pass to the engine objects.
+The advantage of this approach is that user-interfaces can be 
+developed by different people to the developers of the engines.
+
+One final consideration is that it is far better to build one 
+tool to solve a problem in general than to solve many particular
+instances of the problem. Thus, if more than one GUI is required
+to different engines, it may be better to build one `GUI-builder'
+than five different GUIs. I assume that the message-passing approach
+described above is in use.
+
+I cannot speak for the Petri net side of things, but I can see
+the following decomposition of the project modules:
+
+  - textual SDL compiler and linker
+
+  - interpreter engine for the compiled specs
+
+These first two are obviously my responsibility
+
+  - GUI application framework - can be bought or built
+
+  - GUI builder - this could have  a number of basic object types that
+	can be interactively constructed, such as menus, etc.
+	Actions are associated with the individual entities,
+	which may instantiate other GUI objects (such as submenus
+	or dialog boxes), or send messages to an engine object.
+	A standard format for such messages would be defined.
+
+	Output from the GUI builder should be C++ code to implement
+	the objects defined, preferably based on the GUI application
+	framework. By outputting objects, the GUI builder can be
+	used together with hand-coding to create final user-interfaces,
+	and GUI objects can be re-used.
+
+	This would make a good honours project for a pair of good
+	students who are familar with C/C++ and preferably have
+	a bit of experience in event-driven programming.
+
+	Note that commercial application frameworks may already
+	include such tools.
+
+	Other GUI objects that would be useful would be graphing
+	and other types of visualisation objects, for displaying
+	statistical results.
+
+  - a conformance test generator. This should allow things like
+	time-sequence diagrams to be specified, and generate random
+	test sequences (that is sequences of messages requesting
+	service of the interpreter engines) ensuring that all 
+	packet exchanges adhere to the sequence restrictions.
+	This could be an honours or masters project, depending
+	on how sophisticated it was made.
+
+  - a verification engine?
+
+  - a code generation engine (using UNIX sockets). This will be useful
+	if a commercial product is to be made. This should probably
+	be a masters project, but could be done by honour's students.
+	
+  - Petri-net tools
+
+With regard to my part, here is a further breakdown of work involved:
+
+  - assimilation of SDL and the scope of the project in more detail
+	3 weeks
+  - preliminary specification of module interfaces, and coding guidelines
+	2 weeks
+  - development of parser and symbol table for compiler
+	6 weeks
+  - code generation and linking
+	4 weeks
+  - interpreter engine
+	6 weeks
+  - basic analysis engine
+	4 weeks
+
+These are tight estimates, and based on my past experience
+more than a good understanding of how complex this is going to be
+with SDL. I cannot guarantee that these estimates will be met. My
+original understanding was that the project was a two year project;
+to expect this to be achieved in half the time is very optimistic.
+However, as there seems to be a conflict of interest over my time
+division between Jigsaw and UCT, I don't think more of my time than
+this can be allocated to the project for the year.
+
+Regards
+Graham
+

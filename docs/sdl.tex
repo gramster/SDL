@@ -1,0 +1,245 @@
+\documentstyle[a4,12pt]{article}
+\begin{document}
+
+\title{Protocol Modelling using an SDL Subset}
+\author{G. Wheeler\\
+Data Network Architectures Laboratory\\
+University of Cape Town}
+\date{19 January 1994}
+\maketitle
+
+\section{Introduction}
+
+This document provides an overview of the aims of the core SDL project in the
+DNA laboratory. The core project consists of the SDL/PR 88 subset compiler,
+simulator, and analyser. This document motivates the choice of SDL as the
+model specification language, and the choice of the SDL subset for the core
+project. It describes extensions that are required to SDL to enable models
+to be validated and analysed, and briefly discusses the techniques that 
+will be used to achieve these aims.
+
+\section{Why SDL?}
+\label{whySDL}
+
+
+The project is in many ways a re-implementation with improvements of the
+lab's `Protocol Engineering Workbench'. The latter used ISO's Estelle as the
+specification language. The new project is based on SDL. The reasons for
+the change include the following factors:
+
+\begin{itemize}
+\item Estelle has failed to gain wide acceptance in industry; SDL, by
+contrast, had an estimated 10,000 users in mid-1993\footnote{SDL Newsletter 16,
+May 1993};
+\item Estelle is not very popular amongst researchers as the language is
+extremely general (for example, Estelle includes almost the entire Pascal
+language as a subset). While SDL also suffers from this problem, it is less
+acute. As an example of the differences in approach, SDL uses axiomatic
+data types which can be formally reasoned about; Estelle uses Pascal-like
+declarations. In general, SDL is somewhat more suitable for formal
+analysis, while Estelle is more suited to implementation generation.
+The difference in popularity between the two languages is demonstrated by
+number of publications related to each; SDL has its own annual conference
+(the SDL Forums) and newsletter, while Estelle publications are confined to
+few each year at the major protocol-related conferences. This may be
+attributable in part to the relative maturity of SDL vis-a-vis Estelle.
+\item SDL supports a graphical form as well as textual form. There is a
+one-to-one mapping between each of these forms and an abstract syntax. The
+semantics of SDL are defined in terms of this abstract syntax. By using an
+abstract syntax, SDL provides more flexibility in providing front-ends than
+Estelle, which has only one form. The graphical form is an advantage, as
+an aim of the SDL project is to design a tool that will be used by industry
+rather than just researchers, and it is believed that the graphical form
+will be more popular in industry.
+\item The use of the abstract syntax as input to the simulator allows the
+project to be decomposed into independent modules more easily than with 
+Estelle. For example, the project can easily be decomposed into the
+following three modules, which may be very loosely coupled:
+
+\begin{itemize}
+\item an SDL/PR (phrase representation) to abstract syntax translator, 
+and vice-versa;
+\item an SDL/GR (graphical representation) to abstract syntax translator, 
+and vice-versa;
+\item an interpreter/simulator for SDL abstract syntax
+\end{itemize}
+
+Note that the first two items actually comprise four tools which would,
+amongst other things, enable conversion between the textual and graphical
+forms.
+\end{itemize}
+
+\section{Criteria for the SDL Subset}
+
+SDL is a large language, allowing systems to be specified in various
+degrees of detail at various levels, using hierarchical decomposition,
+refinement, partitioning, and remote referencing. These constructs are
+aimed at making an SDL specification, {\em particularly a graphical
+specification}, readable to human users. They do not add to the 
+expressive power of the language (with the exception of signal
+refinements which do affect the semantics of inter-process communication).
+
+In order to produce a useable system in the least amount of time, these
+constructs will not be implemented in the initial version. The initial
+version will require a specification to be self-contained, in a single
+source file, with no remote references. Only a single level of partitioning
+will be supported; that is, a specification may consist of a number of
+connected blocks which in turn each contain one or more processes. Blocks
+may not be partitioned further into subblocks.\footnote{It should be
+pointed out that a minimalistic approach is being adopted here; it may be
+that implementing some of the excluded constructs is not difficult, in
+which case they can be added. Such additions will be done near the
+end of the project, time permitting. There may, however, be an advantage is
+retaining the restrictions, as they should make it simpler to map the SDL
+specifications to other forms of output, such as UNIX STREAMS modules,
+petri-net models, etc.} On the other hand, dynamic process creation and
+termination will probably be supported. Certainly it is possible to
+validate systems which allow process creation and termination, but it
+should also be noted that these are often also restricted (as in the
+{\em PEW}'s behaviour graphs or Falko Bause's Timed SDL tool).
+
+The other aspect of SDL that will be restricted is the use of data types.
+SDL allows new data types to be defined in an axiomatic manner. This is
+useful for proving properties of data types but not very convenient for
+implementation\footnote{As a consequence, many SDL implementations
+either simplify the grammar for specifying data types, or use a
+procedural data type approach such as ASN.1.}.
+In any event, the set of predefined data types (Booleans,
+characters, strings, integers, reals, process IDs, durations and times)
+is sufficiently rich that it should not be necessary to define new types.
+The subset will be restricted to these types, and array and record type
+constructors (called generators in SDL)\footnote{Even structures are
+not really necessary, as in most cases these would be used to define
+message formats. As signals in SDL are already aggregate data types
+(that is, a signal can take zero or more arguments of different
+types), the need for structures is not great.}.
+The syntax for defining data types will be simplified accordingly.
+
+\section{Necessary Extensions}
+
+Having described the restrictions to be made, there are also some
+extensions necessary. These extensions are required for performance
+analysis and validation of systems. The following extensions are proposed:
+
+\begin{itemize}
+\item the inclusion of transition delays and probabilities,
+for performance evaluation purposes;
+\item the inclusion of channel capacities to enforce a finite number of
+system states;
+\item the inclusion of channel attributes, such as signal
+resequencing, for simulating networks in which message reordering is
+possible;
+\item the inclusion of assertions, end states, accepting states, progress
+states, and temporal claims, for validation purposes\footnote{An {\em
+end state} is a state which represents healthy termination; this is
+to distinguish this state from a deadlock state. For example, when a
+server process is idle and waiting for requests, this is an
+acceptable end state. An accepting state is a state which should not
+occur in an infinite cycle; these are used for livelock detection. A
+progress state is a state which indicates that something desirable
+has happened; in validation we would like to show that every infinite
+cycle contains at least one progress state.}
+\end{itemize}
+
+The additional constructs will be achieved by using compiler
+directives embedded within comments in the specification, to ensure
+that the resulting specifications remain as close to standard SDL as
+possible. Identifying states as accepting, progress or end states,
+can be done by using a state naming convention as is done in
+Holzmann's Promela.
+
+The inclusion of channel capacities allows us to extend the types of IPC
+(inter-process communication) possible, as a channel with capacity zero
+effectively results in rendezvous communication rather than the normal 
+asynchronous communication.
+
+\section{Simulation of Models}
+
+Given a system specified in the SDL subset, the compiler will generate an
+abstract syntax tree for the system. This will be based as closely as
+possible on the abstract syntax used in the SDL standard for defining the
+semantics of SDL. The interpreter will execute the system using the
+abstract syntax tree.
+
+As mentioned in Section~\ref{whySDL}, use of an abstract syntax tree
+(AST) has advantages over
+generating code for a virtual machine:
+
+\begin{itemize}
+\item the abstract syntax is part of the international standard;
+\item an SDL/GR tool could easily generate similar trees, and thus use
+the same interpreter with no modification;
+\item as the AST is tied closely to the original system structure, it may
+well be feasible to generate SDL/GR or SDL/PR directly from such a tree.
+This would enable SDL/GR to/from SDL/PR conversion to be easily
+accomplished;
+\item there is a large body of knowledge in compiler theory about the
+generation, optimisation and use of ASTs. ASTs are probably the most common
+form of intermediate language used internally within compilers.
+\end{itemize}
+
+\section{Construction of semi-Markov Models}
+
+In order to construct semi-Markov models for a system, we need to know the
+stochastic and holding time matrices for the system. These may be obtained
+from simulation. Experience with the PEW showed that the best approach to 
+create such models is to decouple the process entirely from the interpreter
+itself. The interpreter simply generates an execution trace consisting of
+three-tuples of the form (time, process ID, transition index). A separate
+tool collates the information in the traces into the matrices. The
+advantage of this approach is that the same trace can be used in many
+different ways (for example, restricting attention to a subset of
+transitions and/or processes) without having to perform additional
+simulations.
+
+\section{Combining Validation and Performance Analysis}
+
+The other method of performance analysis in the {\em PEW} is the behaviour graph
+method. This is very similar to a state-space search, but requires in
+addition the possible sequences of events to be recorded. That is, it is
+not sufficient to simply maintain a table of all possible states; we need
+to know the order in which they can occur, and the criteria used to select
+the next state given the current state.
+
+The {\em PEW} did not use state information at all, but allowable sequences of
+transitions. Each node of the behaviour graph contained zero or more
+transitions. Within a node, the sequence of transition firings was
+deterministic and with negligible time intervals; branches in the graph
+thus corresponded to decisions and/or delays.
+
+As the size of the behaviour graph is similar to that of the state space,
+which, in any case, is large, we would ideally like to combine the two
+approaches into one; this will enable us to perform both validation and
+performance prediction. The method proposed is to maintain both a hash
+table of admissible states, and a behaviour graph. The behaviour graph will
+be supplemented with the system state at the point of entry of each node
+(we do not need to maintain the different states within the nodes). The use
+of states will allow the recursive subtree comparison routine used in the
+{\em PEW} to be discarded in favour of the simpler and more accurate comparison
+of node entry states. Furthermore, each node in the behaviour graph
+essentially represents an atomic sequence of events. As we only need
+to store the state upon entry to the node, the memory requirements of
+a state space search can be reduced (based on experience with the
+{\em PEW}, I would estimate this reduction to be to about one-third
+of the original state space).
+
+If the state space is too large to explore exhaustively, it is
+proposed that a partial search be done. To decide how best to do
+this, further investigation is required. Two possible approaches are
+those taken by Holzmann (the supertrace algorithm) and by Bauser et
+al (in the TSDL tool). In addition the application of
+partial-ordering techniques for reducing the number of
+possible interleavings of events will be considered.
+
+\section{Summary}
+
+This document has outlined the preliminary proposals for the SDL core
+project. It should be clear that the emphasis is on applying the
+performance and validation techniques to models, which happen to be
+specified in an SDL subset, rather than on SDL itself. It should be
+possible to enhance the resulting tool to handle a full or near full
+implementation of SDL in the future; this may make a good honours
+project in 1995.
+
+\end{document}
+

@@ -1,0 +1,298 @@
+\documentstyle[a4,epsf,12pt]{article}
+\begin{document}
+\title{An SDL Toolset for Distributed System Development}
+\author{Dr. Graham Wheeler\\Prof. Pieter Kritzinger\\
+{\em Data Network Architectures Laboratory}\\
+{\em Department of Computer Science}\\
+{\em University of Cape Town}}
+\maketitle
+
+\begin{center}
+{\bf Abstract}
+\end{center}
+
+We describe a new CASE toolset SDL*Design, 
+which is based upon the International Telecommunication
+Union's Specification and Description Language (SDL). We discuss the
+need for such tools, and motivate our choice of SDL. The components
+of the tool are described followed by a discussion of how it is used.
+We conclude by mentioning further tools that are expected to
+interwork with 
+
+\section{The New Software Crisis}
+
+The paradigms for software development are in a period of upheaval.
+Several causes can be identified, amongst them:
+
+\begin{itemize}
+\item software complexity
+is increasing to the point that traditional structured design approaches 
+are becoming inadequate;
+\item for similar reasons, there is an increasing demand for
+reuseable components, both at the implementation and at the
+specification and design levels;
+\item the ubiquitous personal computer has accelerated the distribution
+of computers over wide areas with the need to share services
+and resources;
+\item the increasing use of GUI environments. 
+\end{itemize}
+
+\section{Changing Paradigms for Software Engineering}
+
+This upheaval has  resulted in the increased use of the following
+computing paradigms:
+
+\begin{itemize}
+\item object-oriented analysis, design, implementation and testing;
+\item client-server computing;
+\item event-driven programming.
+\end{itemize}
+
+These paradigms are closely related; for example, event-driven systems
+can be elegantly implemented using OOP, client-server systems are typically
+event-driven, and GUIs are event-driven OO systems which may be
+client-server based (e.g. X Window).
+
+These types of systems cannot be designed using traditional top-down
+methods. The top-down method often allowed the design stage to be 
+largely bypassed, with design being a by-product of implementation.
+A proper design stage in the software
+engineering process is now much more critical. This is particularly
+true in object-oriented systems where a badly designed class 
+hierarchy may cripple the development process and will certainly
+fail to provide reuse.
+
+\section{Design in the Telecommunications Industry}
+
+As a result of the demand, much recent research has focussed on
+object-oriented analysis and design techniques, although at this
+stage the results are still largely immature and experimental.
+There is, however, one field in which event-driven OO
+systems have long been known, namely telecommunications
+engineering; the first object-oriented language
+(Simula, 1967) was largely designed by Scandinavian telecommunication
+engineers.
+Since the early 1970s this community, through the auspices of the
+International Telecommunication Union (ITU, formerly CCITT),
+has developed a specification and
+design notation called SDL (Specification and Description
+Language)\cite{itusdl}.
+Originally a graphical notation, an equivalent textual notation 
+has also been introduced. The notation allows the specification of
+the hierarchical structure
+of a software system, as well as the internal dynamics of the processes
+within the system, and their communication with each other and
+the external environment.
+The formal basis of the notation allows
+for automated processing for the purposes of simulation, validation,
+performance evaluation, and as a basis for implementation.
+SDL has recently been enhanced with object-oriented data types,
+but is otherwise a mature methodology in use by many of the world's 
+largest telecommunication companies. For example, AT\&T developed
+their 5ESS switch using SDL as the specification and design notation.
+The SDL specification of the was formally validated by an automatic
+validation program, the largest such validation yet
+performed\cite{sdlholz}.
+
+The SDL notation is based on a communicating finite-state machine model.
+In addition to the notation for describing systems and processes,
+it includes a notation for specifying message sequence charts specifying the
+allowed sequences of message exchanges. 
+
+The usefulness of the communicating FSM model and
+graphical design notations has not
+escaped other researchers in object-oriented analysis and design. Almost
+all currently used OOA/OOD methodologies use graphical notations with
+message-sequence charts (adopted from the telecommunication industry)
+and timing diagrams (adopted from the computer hardware industry).
+Furthermore, they all base the specification of dynamic behaviour on
+communicating finite-state machines.
+It is no surprise, then, that SDL has been used as the basis for
+two object-oriented software engineering methodologies, 
+Objectory\cite{objectory} and SISU\cite{sisu}.
+
+\section{Objectory}
+
+Objectory {Object FactOry} is a powerful OOA/OOD method developed by Ivar 
+Jacobsen, which attempts to address the entire software 
+life-cycle. It was developed from experience in building telephone exchange 
+systems at Ericsson. Jacobsen was involved in the development of both 
+Simula and SDL, and is one of the most experienced practioners in both
+object-oriented techniques and the design of real-time distributed 
+systems. The block structuring methods developed at Ericsson are the 
+basis of both SDL and Objectory.
+The dynamic semantics of Objectory are realised through a notation
+heavily based upon SDL (although the methodology allows
+other notations to be used if desired).
+
+\section{SISU}
+
+In 1989 a group of companies and research institutes in Norway initiated
+the SISU project, having as its main goal to find and implement viable
+solutions to the problem of how systems developers can gain control over
+the development process, reduce costs and lead times, and improve product
+quality. The result is a design-oriented
+methodology that extends from requirements analysis through to
+implementation (typically in C++). The design sepcification notation
+used is SDL '92. The SISU group argue that SDL's potential for supporting
+design-oriented systems engineering sets it apart from methodologies
+based on other notations.
+
+SISU project members included experienced object-oriented designers
+and telecommunication engineers. The methodology has been applied
+in industry, for example in the development of MAREK, a fully-
+automatic telephone and telex systems for ships using INMARSAT.
+
+\section{The SDL*Design Toolset}
+
+For a design methodology to be really useful, tools are needed to
+aid in the creation, maintenance, and if possible, analysis, of
+specifications in the associated notation. Ideally such a tool
+will do all of the above, as well as generate source code as the
+basis of an implementation (ensuring conformance to the specification).
+
+The authors have experience in the development of such a tool, using ISO
+Estelle (Extended State Transition Language) as the specification 
+notation. Estelle is a Pascal-based notation with extensions for
+concurrent communicating finite-state machines. However, Estelle has
+not been widely used by industry, and is inadequate as a design notation,
+as it is too implementation-oriented.
+
+For reasons which are clear from the earlier discussion, we
+decided that SDL was a more appropriate choice, and have thus
+implemented a set of tools for the checking, simulation and analysis
+of SDL specifications. The toolset has been decomposed in a modular
+fashion into a number of separate components.
+We  aim to enable these components to interoperate with
+other tools developed by the Data Network Archtectures 
+research group.
+ 
+The structure of the toolkit is shown in Figure~\ref{sdltool}. 
+Modules are shown as rectangles, while the data exchanged is shown as
+ovals. The modules which have been implemented at the time of
+writing are shown as solid blocks. The toolkit has been implemented
+in C++ and runs under MS-DOS with MS-Windows 3.1 as well
+as under UNIX with X and Motif.
+
+\begin{figure}\centering
+\epsfxsize=15cm
+\epsffile{sdltool.ps}
+\caption{\label{sdltool} Components of the SDL*Design toolset.}
+\end{figure}
+
+The components are:
+
+\begin{description}
+\item [Graphical editor] This supports the graphical form of SDL.
+Graphical diagrams can be easily drawn, edited, and annotated.
+The drawings can be saved to disk and recalled. The editor also
+supports the export of the SDL/GR system to SDL/PR, or to Xfig
+figure files. The latter can then be converted to numerous other
+formats, including Encapsulated PostScript.
+\item [Preprocessor] This performs macro expansion on a
+specification, removes comments, handles conditional compilation,
+and combines specifications that are split across multiple files 
+(there is currently no support for separate or incremental
+compilation);
+\item [Syntax checker/AST generator] This checks the syntax of the
+specification, and builds an abstract syntax tree representation
+based on the abstract syntax in the SDL standard;
+\item [Petri Net model generator] This module is currently under 
+development. Its task is to translate systems that have been compiled
+into AST form in Petri net models that can be validated and
+have their performance analysed using Petri net tools being
+developed by the Data Network Laboratory in conjunction with the
+University of Dortmund.
+\item [Semantic checker/VM code generator] This performs semantic
+checking of the abstract syntax tree, and outputs interpretable code
+targeted at a set of virtual machines specially designed for SDL;
+\item [Interpreter/debugger] - This creates and manages the SDL
+virtual machines (which represent the system, blocks, processes and
+procedures of the specification). It has a simple text-based user
+interface but allows sophisticated event-tracing, fine control over
+execution, and access to symbolic debugging information;
+\item [Graphical simulator] This is a front-end to the interpreter
+which will provide a graphical interface to the interpreter,
+and will ultimately include a visual representation of the dynamics of system
+execution;
+\item [Performance analyser] This is another front-end to the interpreter,
+which will produce event traces which will subsequently be analysed and from
+which semi-Markov
+models of the performance behaviour of the system will be derived;
+\item [Model solver] This solves models generated by the performance
+analyser and allows these models to be used predictively;
+\item [Validator] This will perform validation and possibly performance 
+analysis via state-space exploration of the system;
+\item [Decompiler] This produces pretty-printed textual SDL from
+an abstract syntax tree; it can be used recreate specifications that
+are accidentally deleted as well as for automatic formatting;
+\item [Disassembler] This produces a disassembled listing of the SDL
+virtual machine program code;
+\item [C++ code generator] This module converts the compiled system
+into a set of C++ classes. Each data type, signal type and process type
+is converted to an appropriate class definition. The resulting code
+can be compiled and linked with a run-time support file to produce
+an executable simulator which executes hundreds of times faster than
+the interpreter. By modifying the run-time support file, the C++
+classes can be used as the basis for an implementation generated
+directly from the design specification.
+\end{description}
+
+\section{Using the Toolkit}
+
+At present, the toolset has the following uses:
+
+\begin{itemize}
+\item Specifications can be entered and edited graphically
+using the graphical editor, or can be entered in textual 
+form using any text editor.
+\item The specifications can be checked for syntactic and semantic
+errors.
+\item The performance of the system can be evaluated by executing
+the compiled specification, or by generating and executing a C++ 
+version of the specification.
+\item Output from the executions can be used as data to be analysed 
+to create formal performance models of the system.
+\item Further validation is possible by
+including assertions within the specification.
+\end{itemize}
+
+\section{Conclusion}
+
+The toolkit currently supports a large subset of SDL '88.
+Most of the omitted features are structural devices used for specifying
+a system at a variety of levels of detail. As our use of SDL
+is oriented towards executions, we do not need these mechanisms.
+Were they needed, similar effects can be obtained using
+conditional compilation.
+
+The toolkit must still be updated to support the SDL '92 extensions.
+The main extensions are the introduction of parameterised types
+(similar to C++ templates) and inheritance of data types. SDL's
+data type facility supports abstract data types in which the
+properties of operations on a type are expressed axiomatically,
+rather than the operations being described algorithmically;
+our requirement that these be made concrete for the purposes of
+implementation has led us to simplify our implementation 
+of data types from the SDL '88 standard (other SDL researchers
+have used ASN.1 or similar methods for defining concrete data;
+we believe this is unnecessarily complex).
+SDL '92 goes some
+way to addressing this implementation problem.
+
+\begin{thebibliography}{9}
+\bibitem{itusdl} International Telecommunication Union {\em Recommendation
+Z.100: Functional Specification and Description Language (SDL)} 
+International Telecommunication Union, 1993.
+\bibitem{objectory} Ivar Jacobson et. al. {\em Object-Oriented
+Software Engineering} ACM Press, 1992.
+\bibitem{sisu} Rolv Braek and Oystein Haugen {\em Engineering Real
+Time Systems} Prentice-Hall, 1993.
+\bibitem{sdlholz} Gerard Holzmann {\em Practical methods for the 
+formal validation of SDL specifications} Computer Communications V15N2,
+March 1992.
+\end{thebibliography}
+\end{document}
+
+
+
